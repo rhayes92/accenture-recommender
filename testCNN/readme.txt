@@ -1,0 +1,1 @@
+Unzip glove.6b.50d to work
