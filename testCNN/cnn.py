@@ -38,7 +38,11 @@ tokenizer.fit_on_texts(sentences_train)
 
 X_train = tokenizer.texts_to_sequences(sentences_train)
 X_test = tokenizer.texts_to_sequences(sentences_test)
-
+test_sent = ["This movie was nearly perfect. I only had one complaint."]
+test = tokenizer.texts_to_sequences(test_sent)
+print(test_sent)
+print(test)
+print("---------------------------")
 vocab_size = len(tokenizer.word_index) + 1  # Adding 1 because of reserved 0 index
 
 print(sentences_train[2])
@@ -48,6 +52,8 @@ maxlen = 100
 
 X_train = pad_sequences(X_train, padding='post', maxlen=maxlen)
 X_test = pad_sequences(X_test, padding='post', maxlen=maxlen)
+test = pad_sequences(test, padding='post', maxlen=maxlen)
+
 def create_embedding_matrix(filepath, word_index, embedding_dim):
     vocab_size = len(word_index) + 1  # Adding again 1 because of reserved 0 index
     embedding_matrix = np.zeros((vocab_size, embedding_dim))
@@ -89,3 +95,10 @@ loss, accuracy = model.evaluate(X_train, y_train, verbose=False)
 print("Training Accuracy: {:.4f}".format(accuracy))
 loss, accuracy = model.evaluate(X_test, y_test, verbose=False)
 print("Testing Accuracy:  {:.4f}".format(accuracy))
+ynew = model.predict_classes(test)
+print(ynew)
+for i in range(len(test)):
+	print("X=%s, Predicted=%s" % (test[i], ynew[i]))
+ynew = model.predict_proba(test)
+for i in range(len(test)):
+	print("X=%s, Predicted=%s" % (test[i], ynew[i]))
