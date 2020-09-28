@@ -1,3 +1,7 @@
+##still researching for adding function/algorithm on tkinter
+##feel free to edit 
+
+
 # Core Packages
 import tkinter as tk
 from tkinter import *
@@ -40,5 +44,3 @@ about_label = Label(tab3,text="NLP GUI V.0.0.1 \n Team Innovation Geek",pady=5,p
 about_label.grid(column=0,row=1)
 
 
-##still researching for adding function/algorithm on tkinter
-##feel free to edit 
