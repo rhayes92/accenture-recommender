@@ -60,8 +60,8 @@ def clean_text(text):
     text = tokenize(text) # tokenize
     text = remove_stopwords(text) # remove stopwords
     text = stemming(text) # stemming
-    #text = lemmatize(text) # lemmatization, not used because words are stemmed. 
-    #text = normalize_whitespace(text) # remove extra white space. This impacts tokenization. 
+    #text = lemmatize(text) # lemmatization, not used because words are stemmed. Could use in combination with stemming but didn't think it was necessary. 
+    #text = normalize_whitespace(text) # remove extra white space. This impacts tokenization which is why I don't have it running. 
 
     return text
 
