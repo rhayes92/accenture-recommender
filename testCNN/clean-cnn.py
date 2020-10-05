@@ -1,5 +1,6 @@
 from keras.models import Sequential
 from keras import layers
+import time
 import keras
 import json
 import pandas as pd
@@ -118,10 +119,10 @@ def createNewDataSet():
             itemDescrip = itemDescrip +' '+ row[columnIndex[i]]
         if blankVal == True:
             continue
-        column['Class'].append(checkKey(classDict, row[columnIndex['yVal']]))
+        column['Class'].append(checkKey(classDict, row[columnIndex[parameters['yVal']]]))
         column['Item Description'].append(itemDescrip)
         column['Class Description'].append(row[columnIndex[parameters["yDescription"]]])
-        classDespDict[row[columnIndex['Class']]] = row[columnIndex[parameters["yDescription"]]]
+        classDespDict[row[columnIndex[parameters['yVal']]]] = row[columnIndex[parameters["yDescription"]]]
         count = count + 1
         if count > parameters['totalNumberOfSamples']:
             break
@@ -162,7 +163,7 @@ def createNewDataSet():
         eCount = eCount+1
     y = np_utils.to_categorical(encoded_Y)
     for i in range(len(column['Class'])):
-        print(type(encodingDictRev[column['Class'][i]]))
+        #print(type(encodingDictRev[column['Class'][i]]))
         conn.execute('INSERT INTO dataset VALUES (?,?,?,?,?)',
                      [i, column['Item Description'][i], column['Class'][i], column['Class Description'][i], encodingDictRev[column['Class'][i]]])
     c.commit()
@@ -197,7 +198,7 @@ def trainCNN(dataset):
                                weights=[embedding_matrix],
                                input_length=maxlen,
                                trainable=True))
-    model.add(layers.Conv1D(128, 5, activation='relu'))
+    model.add(layers.Conv1D(parameters["cnnParameters"]["numberOfFeatures"], parameters["cnnParameters"]["kernalSize"], activation='relu'))
     model.add(layers.GlobalMaxPooling1D())
     model.add(layers.Dense(categorySize*2, activation='relu'))
     model.add(layers.Dense(categorySize, activation='softmax'))
@@ -226,7 +227,7 @@ def predict(dataset, model):
     tokenizer = dataset['tokenizer']
     encodingDict = dataset['encodingDict']
     classDescripDict = dataset['classDescripDict']
-    test_sent = ["Fruit Juice"]
+    test_sent = ["Apple Soda"]
     maxlen = parameters["cnnParameters"]["maxlen"]
     test = tokenizer.texts_to_sequences(test_sent)
     test = pad_sequences(test, padding='post', maxlen=maxlen)
@@ -234,37 +235,17 @@ def predict(dataset, model):
     ynew2 = model.predict_classes(test)
     ynew3 = model.predict_proba(test)
     for i in range(len(test)):
-        print("X=%s, Predicted=%s" % (test[i], ynew[i]))
+       # print("X=%s, Predicted=%s" % (test[i], ynew[i]))
         classV = ynew2[i].item()
+        print (classV)
         print(encodingDict[classV], classDescripDict[encodingDict[classV]])
-        print("X=%s, Predicted3=%s" % (test[i], ynew3[i]))
+        #print("X=%s, Predicted3=%s" % (test[i], ynew3[i]))
 
 parameters = loadParameters('parameters.json')
 dataset = createNewDataSet()
+start_time = time.time()
 trainCNN(dataset)
+print("--- %s seconds ---" % (time.time() - start_time))
 #dataset = loadDataSet()
 model = loadModel()
 predict(dataset,model)
-prediction='''
-trainInputvalue = input("Train or load:\n")
-cnnModel  = ""
-tokenizer = Tokenizer(num_words=5000)
-if trainInputvalue == "load" or  trainInputvalue == "" :
-    print("Will load model")
-    tokenizer= makeTokenizer()
-    cnnModel =  keras.models.load_model("./models/cnn_model")
-else:
-    print("Will train model")
-    cnnModel, tokenizer = train()
-test_sent = ["CA tire tax"]
-maxlen = 100
-test = tokenizer.texts_to_sequences(test_sent)
-test = pad_sequences(test, padding='post', maxlen=maxlen)
-ynew = cnnModel.predict(test)
-ynew2 = cnnModel.predict_classes(test)
-ynew3 = cnnModel.predict_proba(test)
-for i in range(len(test)):
-	print("X=%s, Predicted=%s" % (test[i], ynew[i]))
-	print("X=%s, Predicted2=%s" % (test[i], ynew2[i]))
-	print("X=%s, Predicted3=%s" % (test[i], ynew3[i])) 
-'''
