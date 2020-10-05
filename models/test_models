@@ -1,0 +1,15 @@
+## LDA Model
+model = Sequential()
+model.add(layers.Embedding(vocab_size, embedding_dim,
+                               weights=[embedding_matrix],
+                               input_length=maxlen,
+                               trainable=True))
+model.add(SpatialDropout1D(0.3))
+model.add(LSTM(256, dropout = 0.3, recurrent_dropout = 0.3))
+model.add(layers.Dense(13, activation="relu"))
+model.add(layers.Dense(8))
+model.add(layers.Dense(5, activation="relu"))
+model.compile(optimizer='adam',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+model.summary()
