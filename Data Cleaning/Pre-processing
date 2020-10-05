@@ -21,7 +21,6 @@ import string as st
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer # or LancasterStemmer, RegexpStemmer, SnowballStemmer
-from spellchecker import SpellChecker
 words = set(nltk.corpus.words.words())
 
 # create clean_text function:
@@ -61,8 +60,8 @@ def clean_text(text):
     text = tokenize(text) # tokenize
     text = remove_stopwords(text) # remove stopwords
     text = stemming(text) # stemming
-    #text = lemmatize(text) # lemmatization
-    #text = normalize_whitespace(text)
+    #text = lemmatize(text) # lemmatization, not used because words are stemmed. 
+    #text = normalize_whitespace(text) # remove extra white space. This impacts tokenization. 
 
     return text
 
