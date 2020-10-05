@@ -79,7 +79,7 @@ def return_sentences(tokens):
 
 df['clean_title_sent'] = df['clean_title'].apply(lambda x : return_sentences(x))
 df['clean_desc_sent'] = df['clean_desc'].apply(lambda x : return_sentences(x))
-df['clean_title_desc_sent'] = df['clean_title_sent'] + df['clean_desc_sent']
+df['clean_title_desc_sent'] = df['clean_title_sent'] + " " + df['clean_desc_sent']
 df.head()
 
 
