@@ -28,8 +28,10 @@ tab_control.add(tab2, text='Tracker')
 tab_control.add(tab3, text='Accuracy level')
 
 ### Functions for NLP ###
-
-
+def modify_psc():
+	modify_psc=Tk()
+	modify_psc.title("Enter correct code")
+	modify_psc.geometry("400x200")
 
 
 ### Labels ###
@@ -108,7 +110,7 @@ Lookupbutton=tk.Button(tab1,text="Lookup",command=clickOK)
 Lookupbutton.grid(column=1,row=8,padx=5,pady=5)
 correctbutton=tk.Button(tab1,text="Correct",command=click1)
 correctbutton.grid(column=1,row=10,padx=5,pady=5,sticky=E)
-ncorrectbutton=tk.Button(tab1,text="Not Correct",command=click2)
+ncorrectbutton=tk.Button(tab1,text="Not Correct",command=lambda:[click2(), modify_psc()])
 ncorrectbutton.grid(column=2,row=10,padx=5,pady=5,sticky=E)
 
 ### Display Results ###
@@ -126,7 +128,5 @@ about_label.pack(fill='both')
 
 
 window.mainloop()
-
-
 
 
