@@ -227,7 +227,7 @@ def predict(dataset, model):
     tokenizer = dataset['tokenizer']
     encodingDict = dataset['encodingDict']
     classDescripDict = dataset['classDescripDict']
-    test_sent = ["Apple Soda"]
+    test_sent = ["Pepper"]
     maxlen = parameters["cnnParameters"]["maxlen"]
     test = tokenizer.texts_to_sequences(test_sent)
     test = pad_sequences(test, padding='post', maxlen=maxlen)
@@ -242,10 +242,10 @@ def predict(dataset, model):
         #print("X=%s, Predicted3=%s" % (test[i], ynew3[i]))
 
 parameters = loadParameters('parameters.json')
-dataset = createNewDataSet()
+#dataset = createNewDataSet()
 start_time = time.time()
-trainCNN(dataset)
+#trainCNN(dataset)
 print("--- %s seconds ---" % (time.time() - start_time))
-#dataset = loadDataSet()
+dataset = loadDataSet()
 model = loadModel()
 predict(dataset,model)

@@ -1,18 +1,20 @@
 {
   "sampleFile": "purchase-order-data-2012-2015-.csv",
   "xVals": ["Item Description","Item Name"],
-  "yVal": "Segment",
-  "yDescription": "Segment Title",
-  "totalNumberOfSamples": 50000,
-  "cutoutThreshold": 300,
+  "yVal": "Family",
+  "yDescription": "Family Title",
+  "totalNumberOfSamples": 10000,
+  "cutoutThreshold": 200,
   "sampleParameters": {
-    "numWords": 5000,
+    "numWords": 10000,
     "testSize": 0.25
   },
   "cnnParameters": {
     "maxtrixEmbeddingFile": "glove.6B.50d.txt",
     "maxlen": 100,
-    "epochs": 100,
+    "kernalSize": 3,
+    "numberOfFeatures": 140,
+    "epochs": 110,
     "batchSize": 10
   }
 }
