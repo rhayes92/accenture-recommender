@@ -1,10 +1,10 @@
 {
-  "sampleFile": "purchase-order-data-2012-2015-.csv",
-  "xVals": ["Item Description","Item Name"],
+  "sampleFile": "../DataCleaning/cleaned_data.csv",
+  "xVals": ["clean_title_sent","clean_desc_sent"],
   "yVal": "Family",
   "yDescription": "Family Title",
-  "totalNumberOfSamples": 10000,
-  "cutoutThreshold": 200,
+  "totalNumberOfSamples": 50000,
+  "cutoutThreshold": 500,
   "sampleParameters": {
     "numWords": 10000,
     "testSize": 0.25
@@ -13,7 +13,7 @@
     "maxtrixEmbeddingFile": "glove.6B.50d.txt",
     "maxlen": 100,
     "kernalSize": 3,
-    "numberOfFeatures": 140,
+    "numberOfFeatures": 128,
     "epochs": 110,
     "batchSize": 10
   }

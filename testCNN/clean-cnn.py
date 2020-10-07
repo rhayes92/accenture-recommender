@@ -199,7 +199,10 @@ def trainCNN(dataset):
                                input_length=maxlen,
                                trainable=True))
     model.add(layers.Conv1D(parameters["cnnParameters"]["numberOfFeatures"], parameters["cnnParameters"]["kernalSize"], activation='relu'))
+    model.add(layers.Conv1D(parameters["cnnParameters"]["numberOfFeatures"], parameters["cnnParameters"]["kernalSize"], activation='relu'))
+    model.add(layers.Dropout(.1))
     model.add(layers.GlobalMaxPooling1D())
+    model.add(layers.Flatten())
     model.add(layers.Dense(categorySize*2, activation='relu'))
     model.add(layers.Dense(categorySize, activation='softmax'))
     model.compile(optimizer='adam',
@@ -242,10 +245,10 @@ def predict(dataset, model):
         #print("X=%s, Predicted3=%s" % (test[i], ynew3[i]))
 
 parameters = loadParameters('parameters.json')
-#dataset = createNewDataSet()
+dataset = createNewDataSet()
 start_time = time.time()
-#trainCNN(dataset)
+trainCNN(dataset)
 print("--- %s seconds ---" % (time.time() - start_time))
-dataset = loadDataSet()
+#dataset = loadDataSet()
 model = loadModel()
 predict(dataset,model)
