@@ -1,68 +1,109 @@
-##still researching for adding function/algorithm on tkinter
-##feel free to edit 
-
-
 # Core Packages
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+import tkinter.filedialog
 
+### NLP Packages
+import preprocessing as pp
+# import cnn
 
-# NLP Packages
- 
 ### Structure and Layout ###
 window = Tk()
 window.title("NLP PSC")
 window.geometry("800x500")
 window.config(background='black')
 
-### TAB LAYOUT
+# TAB LAYOUT
 tab_control = ttk.Notebook(window)
 tab1 = ttk.Frame(tab_control)
-tab2 = ttk.Frame(tab_control)
+#tab2 = ttk.Frame(tab_control)
 tab3 = ttk.Frame(tab_control)
 
-### ADD TABS TO NOTEBOOK
-tab_control.add(tab1, text='Retraining')
-tab_control.add(tab2, text='Tracker')
+# ADD TABS TO NOTEBOOK
+tab_control.add(tab1, text='PSC Recommendation')
+#tab_control.add(tab2, text='Data')
 tab_control.add(tab3, text='Accuracy level')
 
-### Functions for NLP ###
+
+### Functions and Commands
+
+# Clean text
+def get_text_cleaned():
+    raw_text = str(TitleName.get()+" "+DesName.get())
+    new_text = pp.clean_text(raw_text)
+    text_display.insert(tk.END,new_text)
+
+# CNN model (pending)
+def cnn_text_classifier():
+    raw_text = str(TitleName.get()+" "+DesName.get())
+    #new_text = cnn.predict(raw_text)
+    psc_display.insert(tk.END,new_text)
+
 def modify_psc():
-	modify_psc=Tk()
-	modify_psc.title("Enter correct code")
-	modify_psc.geometry("400x200")
+    modify_psc=Tk()
+    modify_psc.title("Enter correct code")
+    modify_psc.geometry("400x200")
+
+# Clear Entry & Display
+def clear_text():
+    TitleEn.delete(0,END)
+    DesEn.delete(0,END)
+def clear_result():
+    text_display.delete('1.0',END)
 
 
-### Labels ###
+### Tab1
 
-# Tab1
+# Entry and Display columns
+
 label1 = Label(tab1, text= 'PSC Code Recommendation',padx=5, pady=5,font="Verdana 10 bold")
-label1.grid(column=0, row=1)
-S1Lb1 = Label(tab1, text=" Item Title", fg="black", bg="white")
-S1Lb1.grid(row=6, column=0, pady=5,sticky=W+E)
-S1Lb2 = Label(tab1, text=" Item Description", fg="black", bg="white")
-S1Lb2.grid(row=7, column=0, pady=5,sticky=W+E)
-S1Lb3 = Label(tab1, text=" Recommended PSC Code", fg="black", bg="white")
-S1Lb3.grid(row=10, column=0, padx=5,pady=5,sticky=W+E)
-#S1Lb4 = Label(tab1, text=" (Recommended PSC Code)", fg="black", bg="white")
-#S1Lb4.grid(row=10, column=1, padx=5,pady=5,sticky=W+E)
+label1.grid(row=1,column=0)
 
-# Tab2
-label2 = Label(tab2, text= 'How many correction the user made',padx=5, pady=5)
+S1Lb1 = Label(tab1, text=" Item Title", fg="black", bg="white")
+S1Lb1.grid(row=2, column=0, padx=3, pady=3, sticky=W+E)
+TitleName = StringVar()
+TitleEn = Entry(tab1, textvariable=TitleName, width=50)
+TitleEn.grid(row=2, column=1)
+
+S1Lb2 = Label(tab1, text=" Item Description", fg="black", bg="white")
+S1Lb2.grid(row=3, column=0, padx=3, pady=3,sticky=W+E)
+DesName = StringVar()
+DesEn = Entry(tab1, textvariable=DesName, width=50)
+DesEn.grid(row=3, column=1)
+
+S1Lb3 = Label(tab1, text=" Preprocessed Text", fg="black", bg="white")
+S1Lb3.grid(row=5, column=0, padx=3, pady=3,sticky=W+E)
+
+S1Lb4 = Label(tab1, text=" PSC Recommendation", fg="black", bg="white")
+S1Lb4.grid(row=6, column=0, padx=5,pady=5,sticky=W+E)
+
+# Display Results 
+
+text_display = Text(tab1,height=2, width=40)
+text_display.grid(row=5, column=1,padx=10,sticky=W)
+
+psc_display = Text(tab1,height=2, width=40)
+psc_display.grid(row=6, column=1,padx=10,sticky=W)
+
+
+
+# Tab3
+
+
+label0 = Label(tab3, text= 'How many lookup times',padx=5, pady=5)
 def clickOK():
     global count
     count=count + 1
-    label2.configure(text="Lookup" + str(count) + " time(s)")
+    label0.configure(text="Looked up for "+ str(count) + " time(s)")
 count=0 #TRACKER
-label2.grid(column=0, row=1)
+label0.grid(row=1, column=0)
 
-# Tab3
 label3 = Label(tab3, text= 'Accuracy level',padx=5, pady=5,font="Verdana 10 bold")
-label3.grid(column=0, row=1)
+label3.grid(row=2, column=0)
 
 S3Lb1 = Label(tab3, text=" Correct", fg="black", bg="white")
-S3Lb1.grid(column=0,row=6, pady=5,sticky=W+E)
+S3Lb1.grid(row=6, column=0, pady=5,sticky=W+E)
 
 S3Lb2 = Label(tab3, text= 'How many correct records',padx=5, pady=5)
 def click1():
@@ -83,39 +124,25 @@ def click2():
 count2=0
 S3Lb4.grid(column=1, row=7)
 
-#S3Lb5 = Label(tab3, text=" Accuracy Rate", fg="black", bg="white")
-#S3Lb5.grid(column=0,row=8, pady=5,sticky=W+E)
-
-#S3Lb6 = Label(tab3, text=" (Accuracy Rate)", fg="black", bg="white")
-#if (count1+count2) != 0:
-#	S3Lb6.configure(text=str(count1/(count1+count2)))
-#else:
-#	S3Lb6.configure(text=str("na"))		
-#S3Lb6.grid(column=1,row=8, pady=5,sticky=W+E)
 
 tab_control.pack(expand=1, fill='both')
 
-
-### Entry ###
-TitleName = StringVar()
-TitleEn = Entry(tab1, textvariable=TitleName, width=50)
-TitleEn.grid(column=1,row=6)
-DesName = StringVar()
-DesEn = Entry(tab1, textvariable=DesName, width=50)
-DesEn.grid(column=1,row=7)
-
-
 ### BUTTON ###
-Lookupbutton=tk.Button(tab1,text="Lookup",command=clickOK)
-Lookupbutton.grid(column=1,row=8,padx=5,pady=5)
-correctbutton=tk.Button(tab1,text="Correct",command=click1)
-correctbutton.grid(column=1,row=10,padx=5,pady=5,sticky=E)
-ncorrectbutton=tk.Button(tab1,text="Not Correct",command=lambda:[click2(), modify_psc()])
-ncorrectbutton.grid(column=2,row=10,padx=5,pady=5,sticky=E)
+clean_but=tk.Button(tab1,text=" Clean Text",command=get_text_cleaned)
+clean_but.grid(row=5, column=2, padx=5, pady=5,sticky=W+E)
 
-### Display Results ###
-tab1_display = Text(tab1,height=1, width=35)
-tab1_display.grid(row=10, column=1,padx=10,sticky=W)
+lookupbutton=tk.Button(tab1,text="Lookup",command=clickOK)
+lookupbutton.grid(row=6, column=2, padx=5, pady=5,sticky=W+E)
+correctbutton=tk.Button(tab1,text="Correct",command=click1)
+correctbutton.grid(row=9, column=1, padx=5,pady=5,sticky=E)
+ncorrectbutton=tk.Button(tab1,text="Not Correct",command=lambda:[click2(), modify_psc()])
+ncorrectbutton.grid(row=9, column=2, padx=5,pady=5,sticky=E)
+clear_input=tk.Button(tab1,text=" Clear Input",command=clear_text)
+clear_input.grid(row=10, column=2, padx=5, pady=5,sticky=W+S)
+clear_result=tk.Button(tab1,text="Clear Result",command=clear_result)
+clear_result.grid(row=11, column=2, padx=5, pady=5,sticky=W+S)
+
+
 
 
 
@@ -125,8 +152,4 @@ about_label = Label(window,text="NLP GUI V.0.0.1 \n Team Innovation Geek",pady=5
 about_label.pack(fill='both')
 
 
-
-
 window.mainloop()
-
-
