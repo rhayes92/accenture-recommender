@@ -7,10 +7,10 @@ df = pd.read_csv('https://data.ca.gov/dataset/ae343670-f827-4bc8-9d44-2af937d601
 
 # ### Data Preprocessing
 
-df.astype({"Item Name":'str', 'Item Description': 'str'}) # changing data types so clean_text function works properly
-df.dropna(subset=['Item Description'], how = 'any', inplace=True) # removed rows with null values in 'Item Description' column
-df.dropna(subset=['Classification Codes'], how = 'any', inplace=True) # removed rows with null values in 'Classification Codes' column
-#df.dropna(subset=['Class'], how = 'any', inplace=True) # removed rows with null values in 'Class' column ### not sure if want to do this as well
+df.astype({"ORDER_TITLE":'str', 'LINE_DESCRIPTION': 'str'}) # changing data types so clean_text function works properly
+df.dropna(subset=['ORDER_TITLE'], how = 'any', inplace=True) # removed rows with null values in 'ORDER_TITLE' column 
+df.dropna(subset=['LINE_DESCRIPTION'], how = 'any', inplace=True) # removed rows with null values in 'LINE_DESCRIPTION' column
+df.dropna(subset=['PSC_CODE'], how = 'any', inplace=True) # removed rows with null values in 'PSC_CODE' column
 df.isnull().sum()
 
 
@@ -59,30 +59,30 @@ def clean_text(text):
         return text.strip(" ")
 
     text = simplify_punctuation(text) # remove punctuation
-    text = tokenize(text) # tokenize
+    #text = tokenize(text) # tokenize
     text = remove_stopwords(text) # remove stopwords
-    #text = stemming(text) # stemming
+    text = stemming(text) # stemming
     #text = lemmatize(text) # lemmatization, not used because words are stemmed. Could use in combination with stemming but didn't think it was necessary. 
     #text = normalize_whitespace(text) # remove extra white space. This impacts tokenization which is why I don't have it running. 
-
     return text
 
 
 # ### Apply Cleaning Function to Columns
 
-df['clean_title'] = df['Item Name'].apply(lambda x : clean_text(x))
-df['clean_desc'] = df['Item Description'].apply(lambda x : clean_text(x))
+df['clean_title'] = df['ORDER_TITLE'].apply(lambda x : clean_text(x))
+df['clean_desc'] = df['LINE_DESCRIPTION'].apply(lambda x : clean_text(x))
 df['clean_title_desc'] = df['clean_title'] + df['clean_desc']
-
-
-## removing tokens to create a sentence
-def return_sentences(tokens):
-    return " ".join([word for word in tokens])
-
-df['clean_title_sent'] = df['clean_title'].apply(lambda x : return_sentences(x))
-df['clean_desc_sent'] = df['clean_desc'].apply(lambda x : return_sentences(x))
-df['clean_title_desc_sent'] = df['clean_title_sent'] + " " + df['clean_desc_sent']
 df.head()
+
+# This section is not used because we are tokenizing within the model
+## removing tokens to create a sentence
+#def return_sentences(tokens):
+    #return " ".join([word for word in tokens])
+
+#df['clean_title_sent'] = df['clean_title'].apply(lambda x : return_sentences(x))
+#df['clean_desc_sent'] = df['clean_desc'].apply(lambda x : return_sentences(x))
+#df['clean_title_desc_sent'] = df['clean_title_sent'] + " " + df['clean_desc_sent']
+#df.head()
 
 
 # #### Write Clean Data to New CSV
