@@ -47,22 +47,12 @@ def clean_text(text):
     def lemmatize(text):
         word_net = WordNetLemmatizer()
         return [word_net.lemmatize(word) for word in text]
-    
-    def normalize_whitespace(text):
-        text = str(text)
-        text = re.sub(r"//t", r"\t", text)
-        text = re.sub(r"( )\1+", r"\1", text)
-        text = re.sub(r"(\n)\1+", r"\1", text)
-        text = re.sub(r"(\r)\1+", r"\1", text)
-        text = re.sub(r"(\t)\1+", r"\1", text)
-        return text.strip(" ")
 
     text = simplify_punctuation(text) # remove punctuation
-    #text = tokenize(text) # tokenize
+    text = tokenize(text) # tokenize
     text = remove_stopwords(text) # remove stopwords
     text = stemming(text) # stemming
     #text = lemmatize(text) # lemmatization, not used because words are stemmed. Could use in combination with stemming but didn't think it was necessary. 
-    #text = normalize_whitespace(text) # remove extra white space. This impacts tokenization which is why I don't have it running. 
     return text
 
 
@@ -73,15 +63,15 @@ df['clean_desc'] = df['LINE_DESCRIPTION'].apply(lambda x : clean_text(x))
 df['clean_title_desc'] = df['clean_title'] + df['clean_desc']
 df.head()
 
-# This section is not used because we are tokenizing within the model
-## removing tokens to create a sentence
-#def return_sentences(tokens):
+## removing tokens to return to sentence
+# tokenizing within the model so do not need to leave it tokenized here
+def return_sentences(tokens):
     #return " ".join([word for word in tokens])
 
-#df['clean_title_sent'] = df['clean_title'].apply(lambda x : return_sentences(x))
-#df['clean_desc_sent'] = df['clean_desc'].apply(lambda x : return_sentences(x))
-#df['clean_title_desc_sent'] = df['clean_title_sent'] + " " + df['clean_desc_sent']
-#df.head()
+df['clean_title'] = df['clean_title'].apply(lambda x : return_sentences(x))
+df['clean_desc'] = df['clean_desc'].apply(lambda x : return_sentences(x))
+df['clean_title_desc'] = df['clean_title_sent'] + " " + df['clean_desc_sent']
+df.head()
 
 
 # #### Write Clean Data to New CSV
