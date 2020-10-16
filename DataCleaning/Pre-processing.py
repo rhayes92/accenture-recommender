@@ -64,14 +64,17 @@ df['clean_title_desc'] = df['clean_title'] + df['clean_desc']
 df.head()
 
 ## removing tokens to return to sentence
-# tokenizing within the model so do not need to leave it tokenized here
 def return_sentences(tokens):
-    #return " ".join([word for word in tokens])
+    return " ".join([word for word in tokens])
 
 df['clean_title'] = df['clean_title'].apply(lambda x : return_sentences(x))
 df['clean_desc'] = df['clean_desc'].apply(lambda x : return_sentences(x))
-df['clean_title_desc'] = df['clean_title_sent'] + " " + df['clean_desc_sent']
-df.head()
+df['clean_title_desc'] = df['clean_title'] + " " + df['clean_desc']
+
+# removing words with 3 or less characters
+df['clean_title'] = df['clean_title'].replace(r'\b\w{1,3}\b', "", regex=True)
+df['clean_desc'] = df['clean_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
+df['clean_title_desc'] = df['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
 
 
 # #### Write Clean Data to New CSV
