@@ -117,7 +117,7 @@ for k, v in dictionary.iteritems():
     count += 1
     if count > 10:
         break
-dictionary.filter_extremes(no_below=3, no_above=0.5, keep_n=1000000)
+dictionary.filter_extremes(no_below=20, no_above=0.5, keep_n=1000000)
 print(len(dictionary),len(documents))
 bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
 bow_doc_4310 = bow_corpus[90]
@@ -134,7 +134,7 @@ for doc in corpus_tfidf:
     pprint(doc)
     break
 print(categories)
-lda_model = gensim.models.LdaModel(bow_corpus, num_topics=11, id2word=dictionary)
+lda_model = gensim.models.LdaModel(bow_corpus, num_topics=100, id2word=dictionary)
 for idx, topic in lda_model.print_topics(-1):
     print('Topic: {} \nWords: {}'.format(idx, topic))
 

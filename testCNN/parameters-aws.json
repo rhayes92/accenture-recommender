@@ -1,0 +1,20 @@
+{
+  "sampleFile": "GMU_Procurement_Data_FY20Q1_Clean2.csv",
+  "xVals": ["clean_title","clean_desc"],
+  "yVal": "PSC_CODE",
+  "yDescription": "OBJ_CODE",
+  "totalNumberOfSamples": 50000,
+  "cutoutThreshold": 500,
+  "sampleParameters": {
+    "numWords": 10000,
+    "testSize": 0.25
+  },
+  "cnnParameters": {
+    "maxtrixEmbeddingFile": "glove.6B.50d.txt",
+    "maxlen": 100,
+    "kernalSize": 3,
+    "numberOfFeatures": 128,
+    "epochs": 110,
+    "batchSize": 10
+  }
+}

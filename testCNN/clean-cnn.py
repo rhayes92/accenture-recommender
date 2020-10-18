@@ -194,10 +194,7 @@ def trainCNN(dataset):
         tokenizer.word_index, embedding_dim)
 
     model = Sequential()
-    model.add(layers.Embedding(vocab_size, embedding_dim,
-                               weights=[embedding_matrix],
-                               input_length=maxlen,
-                               trainable=True))
+    model.add(layers.Embedding(vocab_size, embedding_dim,weights=[embedding_matrix],input_length=maxlen,trainable=True))
     model.add(layers.Conv1D(parameters["cnnParameters"]["numberOfFeatures"], parameters["cnnParameters"]["kernalSize"], activation='relu'))
     model.add(layers.Conv1D(parameters["cnnParameters"]["numberOfFeatures"], parameters["cnnParameters"]["kernalSize"], activation='relu'))
     model.add(layers.Dropout(.1))
