@@ -3,8 +3,8 @@
   "xVals": ["clean_title","clean_desc"],
   "yVal": "PSC_CODE",
   "yDescription": "OBJ_CODE",
-  "totalNumberOfSamples": 50000,
-  "cutoutThreshold": 500,
+  "totalNumberOfSamples": 100000,
+  "cutoutThreshold": 130,
   "sampleParameters": {
     "numWords": 10000,
     "testSize": 0.25
@@ -14,7 +14,7 @@
     "maxlen": 100,
     "kernalSize": 3,
     "numberOfFeatures": 128,
-    "epochs": 110,
+    "epochs": 10,
     "batchSize": 10
   }
 }

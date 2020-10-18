@@ -1,5 +1,5 @@
 {
-  "sampleFile": "../DataCleaning/cleaned_data.csv",
+  "sampleFile": "purchase-order-data-2012-2015-.csv",
   "xVals": ["clean_title_sent","clean_desc_sent"],
   "yVal": "Family",
   "yDescription": "Family Title",
