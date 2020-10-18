@@ -1,10 +1,10 @@
 {
-  "sampleFile": "../DataCleaning/cleaned_data.csv",
-  "xVals": ["clean_title_sent","clean_desc_sent"],
-  "yVal": "Family",
-  "yDescription": "Family Title",
-  "totalNumberOfSamples": 50000,
-  "cutoutThreshold": 500,
+  "sampleFile": "GMU_Procurement_Data_FY20Q1_Clean2.csv",
+  "xVals": ["clean_title","clean_desc"],
+  "yVal": "PSC_CODE",
+  "yDescription": "OBJ_CODE",
+  "totalNumberOfSamples": 100000,
+  "cutoutThreshold": 330,
   "sampleParameters": {
     "numWords": 10000,
     "testSize": 0.25

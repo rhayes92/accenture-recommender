@@ -194,12 +194,14 @@ def trainCNN(dataset):
         tokenizer.word_index, embedding_dim)
 
     model = Sequential()
+  #  model.add(layers.Embedding(vocab_size,maxlen, input_length=maxlen))
     model.add(layers.Embedding(vocab_size, embedding_dim,weights=[embedding_matrix],input_length=maxlen,trainable=True))
     model.add(layers.Conv1D(parameters["cnnParameters"]["numberOfFeatures"], parameters["cnnParameters"]["kernalSize"], activation='relu'))
     model.add(layers.Conv1D(parameters["cnnParameters"]["numberOfFeatures"], parameters["cnnParameters"]["kernalSize"], activation='relu'))
-    model.add(layers.Dropout(.1))
+    model.add(layers.Dropout(rate=.1))
+    #model.add(layers.Flatten())
     model.add(layers.GlobalMaxPooling1D())
-    model.add(layers.Flatten())
+    #model.add(layers.Flatten())
     model.add(layers.Dense(categorySize*2, activation='relu'))
     model.add(layers.Dense(categorySize, activation='softmax'))
     model.compile(optimizer='adam',
@@ -209,7 +211,7 @@ def trainCNN(dataset):
 
     history = model.fit(X_train, y_train,
                         epochs=parameters["cnnParameters"]["epochs"],
-                        verbose=False,
+                        verbose=True,
                         validation_data=(X_test, y_test),
                         batch_size=parameters["cnnParameters"]["batchSize"])
     loss, accuracy = model.evaluate(X_train, y_train, verbose=False)
