@@ -31,7 +31,7 @@ def clean_text(text):
     def simplify_punctuation(text):
         text = str(text)
         text = re.sub(r'[^a-zA-Z0-9]', ' ', text) # replace everything except letters/numbers
-        return [x.lower() for x in text]
+        return text
     
     def tokenize(text):
         text = re.split('\s+' ,text)
