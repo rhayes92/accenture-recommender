@@ -241,13 +241,17 @@ def predict(txt, dataset, model):
     test = tokenizer.texts_to_sequences(test_sent)
     test = pad_sequences(test, padding='post', maxlen=maxlen)
     ynew = model.predict_classes(test)
+    ytest = model.predict(test)
     print(ynew)
+    print(ytest)
     classV = ynew[0].item()
+    rsps = {}
     rsp = {}
     rsp["PSC"] = encodingDict[classV]
     rsp["desc"] = classDescripDict[encodingDict[classV]]
     rsp["status"] = "success"
-    y = json.dumps(rsp)
+    rsps["predictions"] = [rsp]
+    y = json.dumps(rsps)
     return y
 
 def accept(txt, dataset):

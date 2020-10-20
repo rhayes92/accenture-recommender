@@ -8,7 +8,8 @@ def predict(txt):
     urlReq = url + 'predict'
     x = requests.post(urlReq, json = myjson)
     jsonRsp = json.loads( x.text)
-    print(    jsonRsp["PSC"],    jsonRsp["desc"] ,    jsonRsp["status"])
+    print(jsonRsp)
+    print(    jsonRsp["predictions"][0]["PSC"],    jsonRsp["predictions"][0]["desc"],    jsonRsp["predictions"][0]["status"])
     return jsonRsp
 
 def accept(txt, psc):
