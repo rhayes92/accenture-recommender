@@ -1,9 +1,18 @@
 # ## Cleaning Data
 # ### Team Innovation Geeks
-
-import pandas as pd
+import boto3
+import botocore 
+import pandas as pd 
 import numpy as np
-df = pd.read_csv('https://data.ca.gov/dataset/ae343670-f827-4bc8-9d44-2af937d60190/resource/bb82edc5-9c78-44e2-8947-68ece26197c5/download/purchase-order-data-2012-2015-.csv')
+from sagemaker import get_execution_role 
+
+role = get_execution_role() 
+
+bucket = 'INSERT_BUCKET_NAME_HERE' 
+data_key = 'INSERT_FILE_NAME_HERE.csv'
+data_location = 's3://{}/{}'.format(bucket, data_key) 
+
+df = pd.read_csv(data_location)
 
 # ### Data Preprocessing
 
@@ -79,4 +88,8 @@ df['clean_title_desc'] = df['clean_title_desc'].replace(r'\b\w{1,3}\b', "", rege
 
 # #### Write Clean Data to New CSV
 df.to_csv('cleaned_data.csv')
+
+# uploading csv file to S3 bucket
+s3 = boto3.resource('s3')
+s3.meta.client.upload_file('FILE_NAME_HERE.csv', bucket, 'FILE_NAME_HERE.csv')
 
