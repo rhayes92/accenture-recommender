@@ -95,26 +95,6 @@ def action1():
     DB=DF
     text_display.insert(tk.END,DB['clean_title_desc'][0])
 
-# def action2():
-#     #global DB
-#     ttl = str(TitleName.get())
-#     des = str(DesName.get())
-#     DF=pd.DataFrame(columns=['Item Title','Item Description'])
-#     DF.loc[0,'Item Title']=ttl
-#     DF.loc[0,'Item Description']=des
-#     DF['Item Title']=DF['Item Title'].apply(lambda x : pp.clean_text(x))
-#     DF['Item Description']=DF['Item Description'].apply(lambda x : pp.clean_text(x))
-#     DF['Item Title']=DF['Item Title'].apply(lambda x : pp.return_sentences(x))
-#     DF['Item Description']=DF['Item Description'].apply(lambda x : pp.return_sentences(x))
-#     DF['clean_title_desc'] =DF['Item Title']+" "+DF['Item Description']
-#     DF['clean_title_desc'] =DF['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
-#     DB=DF
-#     checkbox.configure(text=DB['clean_title_desc'][0])
-
-# def modify_psc():
-#     modify_psc=Tk()
-#     modify_psc.title("Enter correct code")
-#     modify_psc.geometry("400x200")
 
 # Clear Entry & Display
 def clear_text():
@@ -171,11 +151,6 @@ S1Lb6 = Label(tab1, text=" Edited result", fg="black", bg="white")
 S1Lb6.grid(row=10, column=0, padx=5,pady=5,sticky=W+E)
 result_display = Text(tab1,height=2, width=40)
 result_display.grid(row=10, column=1,padx=10,sticky=W)
-
-# checkvar = StringVar()
-# checkbox=Checkbutton(tab1,text="PSC",variable=checkvar)
-# checkbox.grid(row=7, column=1,padx=10,sticky=W)
-
 
 
 
