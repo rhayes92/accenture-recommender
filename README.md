@@ -81,7 +81,10 @@ SOFTWARE.
 ## Author Info
 
 Praveen Bommareddy, Hsin-Yi Chen, Reginald Hayes, Haley Olsen, Mingtao Zhang
+
 George Mason University
+
 DAEN 690 Project
+
 Fall 2020
 [Back To The Top](#read-me-template)
