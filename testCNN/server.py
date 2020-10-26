@@ -113,7 +113,7 @@ def retrain(dataset):
             classes.append(row[0])
             classAmmount[row[0]]= classCount[0]
     for i in range(len(classes)):
-        selectSql = "SELECT index_key, item_description, class , class_description , weight FROM dataset WHERE class = %s "  % classes[i]
+        selectSql = "SELECT index_key, item_description, class , class_description , weight FROM dataset WHERE class = %s ORDER by timestamp "  % classes[i]
         conn.execute(selectSql)
         rows = conn.fetchall()
         for row in rows:
