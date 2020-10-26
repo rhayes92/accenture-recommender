@@ -60,8 +60,8 @@ def clean_text(text):
     text = simplify_punctuation(text) # remove punctuation
     text = tokenize(text) # tokenize
     text = remove_stopwords(text) # remove stopwords
-    text = stemming(text) # stemming
-    #text = lemmatize(text) # lemmatization, not used because words are stemmed. Could use in combination with stemming but didn't think it was necessary. 
+    #text = stemming(text) # stemming
+    #text = lemmatize(text) # lemmatization, not used. Could use in combination with stemming but didn't think it was necessary. 
     return text
 
 
