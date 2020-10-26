@@ -1,4 +1,4 @@
-# Read Me Template
+# Natural Language Processing and Recommendation Engine for Supply Chain Product Codes
 
 ![Project Image](project-image-url)
 
@@ -86,5 +86,5 @@ George Mason University
 
 DAEN 690 Project
 
-Fall 2020
+Fall 2020 
 [Back To The Top](#read-me-template)
