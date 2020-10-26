@@ -20,6 +20,14 @@ def accept(txt, psc):
     print( jsonRsp["status"])
     return jsonRsp
 
+
+def accept(txt, psc):
+    myjson = {'text': txt, "PSC":psc}
+    urlReq = url + 'retrain'
+    x = requests.post(urlReq, json = myjson)
+    jsonRsp = json.loads( x.text)
+    print( jsonRsp["status"])
+    return jsonRsp
 print(predict("test"))
 print(accept("test","41111"))
 #print the response text (the content of the requested file):
