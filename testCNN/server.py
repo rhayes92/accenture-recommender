@@ -332,6 +332,18 @@ def trainCNN(dataset):
                         sample_weight=wts,
                         validation_data=(X_test, y_test),
                         batch_size=parameters["cnnParameters"]["batchSize"])
+    # convert the history.history dict to a pandas DataFrame:
+    hist_df = pd.DataFrame(history.history)
+
+    # save to json:
+    hist_json_file = 'history.json'
+    with open(hist_json_file, mode='w') as f:
+        hist_df.to_json(f)
+
+    # or save to csv:
+    hist_csv_file = 'history.csv'
+    with open(hist_csv_file, mode='w') as f:
+        hist_df.to_csv(f)
     loss, accuracy = model.evaluate(X_train, y_train, verbose=False)
     print("Training Accuracy: {:.4f}".format(accuracy))
     loss, accuracy = model.evaluate(X_test, y_test, verbose=False)
