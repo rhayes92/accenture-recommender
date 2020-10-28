@@ -234,14 +234,14 @@ def createNewDataSet():
             break
     for key, value in ammountCat.items():
         if value > parameters['cutoutThreshold']:
-            print(key, ":", value)
+           # print(key, ":", value)
             for i in range(len(column['Class'])):
                 if classDict[column['Class'][i]] == key:
                    trainingData.append(i)
     total = 0
     categories = 0
     for key, value in ammountCat.items():
-        if value >= parameters['cutoutThreshold']:
+        if value > parameters['cutoutThreshold']:
             categories = categories + 1
             total = value + total
     print(len(column['Class']), len(column['Item Description']), total)
@@ -269,7 +269,7 @@ def createNewDataSet():
         encodingValue = -999
         if column['Class'][i] in encodingDictRev.keys():
             encodingValue =  encodingDictRev[column['Class'][i]]
-        usedInModel = 0
+        usedInModel = 1
         if i in trainingData:
             usedInModel= 1
         conn.execute('INSERT INTO dataset (item_description, class , class_description , encoding_val, weight, used_in_model,timestamp ) VALUES (?,?,?,?,?,?,?)',
