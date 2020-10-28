@@ -20,6 +20,7 @@ import csv
 from keras.models import Sequential
 from keras import layers
 import datetime
+from numpy.random import seed
 from sklearn.feature_extraction.text import CountVectorizer
 dataset = "None"
 model = "None"
@@ -232,7 +233,10 @@ def createNewDataSet():
         count = count + 1
         if count > parameters['totalNumberOfSamples']:
             break
+    highest = 0
     for key, value in ammountCat.items():
+        if value > highest:
+            highest = value
         if value > parameters['cutoutThreshold']:
             print(key, ":", value)
             for i in range(len(column['Class'])):
@@ -241,7 +245,7 @@ def createNewDataSet():
     total = 0
     categories = 0
     for key, value in ammountCat.items():
-        if value >= parameters['cutoutThreshold']:
+        if value > parameters['cutoutThreshold']:
             categories = categories + 1
             total = value + total
     print(len(column['Class']), len(column['Item Description']), total)
@@ -260,11 +264,24 @@ def createNewDataSet():
     encoder.fit(y)
     encoded_Y = encoder.transform(y)
     eCount = 0
+    classWeight = {}
     for en in  encoded_Y:
         encodingDict[en.item()] = y[eCount]
         encodingDictRev[y[eCount]] = en.item()
         eCount = eCount+1
+        if  en.item() in classWeight.keys():
+            classWeight[en.item()] = classWeight[en.item()] + 1
+        else:
+            classWeight[en.item()] =  1
+    for key, value in classWeight.items():
+        weight = value/parameters['totalNumberOfSamples']
+        if weight < .001:
+            weight = .5
+        else:
+            weight = 1
+        classWeight[key] = weight
     y = np_utils.to_categorical(encoded_Y)
+
     for i in range(len(column['Class'])):
         encodingValue = -999
         if column['Class'][i] in encodingDictRev.keys():
@@ -283,7 +300,7 @@ def createNewDataSet():
 
     return {"status":"newDataSet","conn":conn,"tokenizer": tokenizer,
             "sentences_train":sentences_train,"sentences_test":sentences_test,"y_train":y_train,
-            "y_test":y_test, "y":y, "classDescripDict":classDespDict,"encodingDict":encodingDict,  'categorySize':categories,"weights":[],"db":c}
+            "y_test":y_test, "y":y, "classDescripDict":classDespDict,"encodingDict":encodingDict,  'categorySize':categories,"weights":[],"db":c, "classWeight":classWeight}
 
 def trainCNN(dataset):
     tokenizer = dataset['tokenizer']
@@ -293,6 +310,7 @@ def trainCNN(dataset):
     y_test=dataset['y_test']
     categorySize = dataset['categorySize']
     wts = dataset["weights"]
+    classWeight = dataset['classWeight']
     X_train = tokenizer.texts_to_sequences(sentences_train)
     X_test = tokenizer.texts_to_sequences(sentences_test)
     vocab_size = len(tokenizer.word_index) + 1  # Adding 1 because of reserved 0 index
@@ -323,6 +341,7 @@ def trainCNN(dataset):
                         epochs=parameters["cnnParameters"]["epochs"],
                         verbose=True,
                         validation_data=(X_test, y_test),
+                        class_weight = classWeight,
                         batch_size=parameters["cnnParameters"]["batchSize"])
     else:
         print(len(wts), len(X_train), len(y_test))
