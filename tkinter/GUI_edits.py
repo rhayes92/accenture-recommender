@@ -152,7 +152,7 @@ pscName = StringVar()
 pscEn = Entry(tab1, textvariable=pscName, width=55)
 pscEn.grid(row=9, column=1)
 
-S1Lb6 = Label(tab1, text="Select Other Product Service Code", fg="black", bg="white").grid(row = 13, column = 0, sticky=W+E)
+#S1Lb6 = Label(tab1, text="Select Other Product Service Code", fg="black", bg="white").grid(row = 13, column = 0, sticky=W+E)
 
 # Display Results 
 
@@ -228,24 +228,24 @@ clear_edited_record.grid(row=9, column=2, padx=5, pady=5,sticky=W+E)
 
 
 # PSC Drop-down - Not Sure if we want to do this
-psc_option = StringVar()
+#psc_option = StringVar()
 
 # Dictionary with options
-psc_list = {'1','2','3','4','5'} # will have to enter actual PSC list here
-psc_option.set('1') # set the default option
+#psc_list = {'1','2','3','4','5'} # will have to enter actual PSC list here
+#psc_option.set('1') # set the default option
 
-pscMenu = OptionMenu(tab1, psc_option, *psc_list)
-pscMenu.grid(row = 13, column =1, sticky=W+E)
-pscMenu.configure(bg = 'white')
-acceptbutton=tk.Button(tab1,text="Select Product Service Code",command=lambda:[click2(),accept_psc()], activebackground = 'white')
-acceptbutton.grid(row=14, column=1, padx=5,pady=5,sticky=W+E)
+#pscMenu = OptionMenu(tab1, psc_option, *psc_list)
+#pscMenu.grid(row = 13, column =1, sticky=W+E)
+#pscMenu.configure(bg = 'white')
+#acceptbutton=tk.Button(tab1,text="Select Product Service Code",command=lambda:[click2(),accept_psc()], activebackground = 'white')
+#acceptbutton.grid(row=14, column=1, padx=5,pady=5,sticky=W+E)
 
 # on change dropdown value
-def change_dropdown(*args):
-    print(psc_option.get())
+#def change_dropdown(*args):
+ #   print(psc_option.get())
 
 # link function to change dropdown
-psc_option.trace('w', change_dropdown)
+#psc_option.trace('w', change_dropdown)
 
 about_label = Label(window,text="NLP GUI V.1.0.1 Team Innovation Geeks",pady=5,padx=5)
 about_label.pack(fill='both')
