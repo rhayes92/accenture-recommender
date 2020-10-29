@@ -451,6 +451,7 @@ def startServer():
     global dataset
     global model
     webServer = HTTPServer((hostName, serverPort), MyServer)
+    '''
     dataset = createNewDataSet()
     start_time = time.time()
     trainCNN(dataset)
@@ -467,7 +468,7 @@ def startServer():
     else:
         dataset = loadDataSet()
         model = loadModel()
-    '''
+
     try:
         webServer.serve_forever()
     except KeyboardInterrupt:
