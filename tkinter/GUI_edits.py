@@ -99,7 +99,7 @@ def action1():
     DF['clean_title_desc'] =DF['Item Title']+" "+DF['Item Description']
     DF['clean_title_desc'] =DF['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
     DB=DF
-    text_display.insert(tk.END,DB['clean_title_desc'][0])
+    #text_display.insert(tk.END,DB['clean_title_desc'][0])
 
 
 # Clear Entry & Display
@@ -110,7 +110,7 @@ def clear_text2():
     DesEn.delete(0,END)
     
 def clear_result():
-    text_display.delete('1.0',END)
+    #text_display.delete('1.0',END)
     psc_display.delete('1.0',END)
 
 def clear_edited():
