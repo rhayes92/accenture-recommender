@@ -17,7 +17,7 @@ import preprocessing1 as pp
 ### Structure and Layout ###
 window = Tk()
 window.title("NLP PSC")
-window.geometry("775x425")
+window.geometry("825x425")
 window.configure(bg='dark grey')
 
 # TAB LAYOUT
