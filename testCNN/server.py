@@ -68,6 +68,7 @@ def loadDataSet():
     column["Class"] = []
     column["Item Description"] = []
     column["Class Description"] = []
+    print(len(rows))
     for row in rows:
         column['Item Description'].append(row[1])
         column['Class'].append(row[2])
@@ -79,6 +80,8 @@ def loadDataSet():
     df_yelp = pd.DataFrame(data=d)
     sentences = df_yelp['sentence'].values
     y = df_yelp['label'].values
+    for i in range(len(y)):
+        y[i] = str(y[i])
     encoder = LabelEncoder()
     encoder.fit(y)
     encoded_Y = encoder.transform(y)
