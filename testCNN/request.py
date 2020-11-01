@@ -13,7 +13,8 @@ def predict(txt):
     return jsonRsp
 
 def accept(txt, psc):
-    myjson = {'text': txt, "PSC":psc}
+    #save set to True will save
+    myjson = {'text': txt, "PSC":psc, 'save':True}
     urlReq = url + 'accept'
     x = requests.post(urlReq, json = myjson)
     jsonRsp = json.loads( x.text)
@@ -21,14 +22,16 @@ def accept(txt, psc):
     return jsonRsp
 
 
-def accept(txt, psc):
-    myjson = {'text': txt, "PSC":psc}
+def retrain():
+    myjson = {}
     urlReq = url + 'retrain'
-    x = requests.post(urlReq, json = myjson)
+    x = requests.post(urlReq, json = myjson, timeout=14400)
     jsonRsp = json.loads( x.text)
     print( jsonRsp["status"])
     return jsonRsp
 print(predict("test"))
 print(accept("test","41111"))
+#print(retrain())
+
 #print the response text (the content of the requested file):
 

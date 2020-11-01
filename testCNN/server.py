@@ -3,6 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from keras.models import Sequential
 from keras import layers
 import time
+import math
 import keras
 import json
 import pandas as pd
@@ -29,6 +30,8 @@ dbPath =  "dataset.db"
 ammountCat ={}
 parameters = {}
 conn = ""
+serverStatus = "UP"
+#Utility function to create keep track of Target value
 def checkKey(dict, key):
     if key in dict.keys():
        ammountCat[dict[key]] = ammountCat[dict[key]] + 1
@@ -37,7 +40,7 @@ def checkKey(dict, key):
        dict[key] = len(dict) + 1
        ammountCat[dict[key]]=  1
        return key
-
+#Function to make word embbedding matrix
 def create_embedding_matrix(filepath, word_index, embedding_dim):
     vocab_size = len(word_index) + 1  # Adding again 1 because of reserved 0 index
     embedding_matrix = np.zeros((vocab_size, embedding_dim))
@@ -50,16 +53,35 @@ def create_embedding_matrix(filepath, word_index, embedding_dim):
                 embedding_matrix[idx] = np.array(
                     vector, dtype=np.float32)[:embedding_dim]
     return embedding_matrix
-
+#load parameters from json file
 def loadParameters(file):
     param = {}
     with open(file) as f:
         param = json.load(f)
     return param
 
+
+def Nmaxelements(list1, N):
+    final_list = []
+    for i in range(0, N):
+        max1 = 0
+        k = 0
+        jVal = 0
+        for j in range(len(list1)):
+            if list1[j][1] > max1:
+                max1 = list1[j][1];
+                k = list1[j][0];
+                jval = j
+        del list1[jval];
+        final_list.append(k)
+    return final_list
+
+#load data on startup
 def loadDataSet():
+    #connect to database
     conn = sqlite3.connect(dbPath)
     cur = conn.cursor()
+    #select values used in model
     cur.execute("SELECT * FROM dataset WHERE used_in_model = 1")
     rows = cur.fetchall()
     column = {}
@@ -68,7 +90,6 @@ def loadDataSet():
     column["Class"] = []
     column["Item Description"] = []
     column["Class Description"] = []
-    print(len(rows))
     for row in rows:
         column['Item Description'].append(row[1])
         column['Class'].append(row[2])
@@ -82,19 +103,23 @@ def loadDataSet():
     y = df_yelp['label'].values
     for i in range(len(y)):
         y[i] = str(y[i])
+    #create encoder for predictions
     encoder = LabelEncoder()
     encoder.fit(y)
     encoded_Y = encoder.transform(y)
     y = np_utils.to_categorical(encoded_Y)
     sentences_train, sentences_test, y_train, y_test = train_test_split(
         sentences, y, test_size=parameters["sampleParameters"]["testSize"], random_state=1000)
+    #create tokenizer for predictions
     tokenizer = Tokenizer(num_words=parameters["sampleParameters"]["numWords"])
-    tokenizer.fit_on_texts(sentences_train)
+    tokenizer.fit_on_texts(sentences)
     return {"status": "LoadDataSet", "conn": cur, "tokenizer": tokenizer, "sentences_train": sentences_train,
             "sentences_test": sentences_test, "y_train": y_train, "y_test": y_test, "y": y,
             "classDescripDict": classDespDict, "encodingDict":encodingDict,'categorySize': categories,"weights":[], "db":conn}
-
+#function to retrain model
 def retrain(dataset):
+    global serverStatus
+    serverStatus = "DOWN"
     conn = dataset["conn"]
     conn.execute("SELECT DISTINCT class FROM dataset")
     rows = conn.fetchall()
@@ -109,6 +134,8 @@ def retrain(dataset):
     column["index_key"] = []
     column["weight"] = []
     classAmmount = {}
+    totalNumber = 0
+    #load data from database
     for row in rows:
         classCountSql = "SELECT count(class) FROM dataset WHERE class = %s" % row[0]
         conn.execute(classCountSql)
@@ -116,8 +143,12 @@ def retrain(dataset):
         if classCount[0] > parameters['cutoutThreshold']:
             classes.append(row[0])
             classAmmount[row[0]]= classCount[0]
+            totalNumber = totalNumber + classCount[0]
+    for key, value in classAmmount.items():
+         classAmmount[key] = int(math.ceil((classAmmount[key]/totalNumber)*parameters["totalNumberOfSamples"]))
+    #for class over threshold load
     for i in range(len(classes)):
-        selectSql = "SELECT index_key, item_description, class , class_description , weight FROM dataset WHERE class = %s ORDER by timestamp "  % classes[i]
+        selectSql = "SELECT index_key, item_description, class , class_description , weight FROM dataset WHERE class = %s ORDER by weight DESC, timestamp DESC LIMIT %d"  % (classes[i], classAmmount[classes[i]])
         conn.execute(selectSql)
         rows = conn.fetchall()
         for row in rows:
@@ -127,54 +158,36 @@ def retrain(dataset):
             column["Class Description"].append(row[3])
             column["weight"].append(row[4])
             classDespDict[row[2]] = row[3]
-    {k: v for k, v in sorted(classAmmount.items(), key=lambda item: item[1])}
-    categories= len(list(classAmmount.keys()))
-    count =0
-    while len(column["Class"]) > parameters['totalNumberOfSamples']:
-        found  = False
-        for i in range(len( column["Class"])):
-            if column["Class"][i] == list(classAmmount.keys())[count] and column["weight"][i] != 1.5:
-                del column['Class'][i]
-                del column['Item Description'][i]
-                del column['Class Description'][i]
-                del column['weight'][i]
-                del column['index_key'][i]
-                found = True
-                break
-        {k: v for k, v in sorted(classAmmount.items(), key=lambda item: item[1])}
-        if categories < count:
-            break
-        if found == False:
-            count = count + 1
-    while len(column["Class"]) > parameters['totalNumberOfSamples']:
-        found  = False
-        for i in range(len( column["Class"])):
-            if column["Class"][i] == list(classAmmount.keys())[count]:
-                del column['Class'][i]
-                del column['Item Description'][i]
-                del column['Class Description'][i]
-                del column['weight'][i]
-                del column['index_key'][i]
-                found = True
-                break
-        {k: v for k, v in sorted(classAmmount.items(), key=lambda item: item[1])}
-        if categories < count:
-            break
-        if found == False:
-            count = count + 1
+    categories = len(list(classAmmount.keys()))
     d = {'label': column['Class'], 'sentence': column['Item Description'],   'weight': column["weight"] }
     df_yelp = pd.DataFrame(data=d)
     sentences = df_yelp['sentence'].values
     weights = df_yelp['weight'].values
     y = df_yelp['label'].values
+    for i in range(len(y)):
+        y[i] = str(y[i])
     encoder = LabelEncoder()
     encoder.fit(y)
     encoded_Y = encoder.transform(y)
     eCount = 0
+    classWeight = {}
     for en in  encoded_Y:
         encodingDict[en.item()] = y[eCount]
         encodingDictRev[y[eCount]] = en.item()
         eCount = eCount+1
+        if en.item() in classWeight.keys():
+            classWeight[en.item()] = classWeight[en.item()] + 1
+        else:
+            classWeight[en.item()] = 1
+
+    for key, value in classWeight.items():
+        weight = value / parameters['totalNumberOfSamples']
+        if weight < .001:
+            weight = .5
+        else:
+            weight = 1
+        classWeight[key] = weight
+
     y = np_utils.to_categorical(encoded_Y)
     sentences_train, sentences_test, y_train, y_test,weights_train,weights_test = train_test_split(
         sentences, y,weights, test_size=parameters["sampleParameters"]["testSize"], random_state=1000)
@@ -188,7 +201,7 @@ def retrain(dataset):
     return {"status": "newDataSet", "conn": conn, "tokenizer": tokenizer,
             "sentences_train": sentences_train, "sentences_test": sentences_test, "y_train": y_train,
             "y_test": y_test, "y": y, "classDescripDict": classDespDict, "encodingDict": encodingDict,
-            'categorySize': categories, "weights":weights_train, "db":dataset["db"]}
+            'categorySize': categories, "weights":weights_train, "db":dataset["db"],  "classWeight":classWeight}
 
 def createNewDataSet():
     conn =""
@@ -241,7 +254,6 @@ def createNewDataSet():
         if value > highest:
             highest = value
         if value > parameters['cutoutThreshold']:
-           # print(key, ":", value)
             for i in range(len(column['Class'])):
                 if classDict[column['Class'][i]] == key:
                    trainingData.append(i)
@@ -353,6 +365,7 @@ def trainCNN(dataset):
                         verbose=True,
                         sample_weight=wts,
                         validation_data=(X_test, y_test),
+                        class_weight = classWeight,
                         batch_size=parameters["cnnParameters"]["batchSize"])
     # convert the history.history dict to a pandas DataFrame:
     hist_df = pd.DataFrame(history.history)
@@ -386,28 +399,41 @@ def predict(txt, dataset, model):
     test = tokenizer.texts_to_sequences(test_sent)
     test = pad_sequences(test, padding='post', maxlen=maxlen)
     ynew = model.predict_classes(test)
-    ytest = model.predict(test)
-    print(ynew)
-    print(ytest)
-    classV = ynew[0].item()
+    classPredVals = model.predict(test)
+    classPredVals = classPredVals[0]
+    listOfClass = []
+    for i in range(len(classPredVals)):
+        listOfClass.append([i,classPredVals[i]])
+    numOfPrediction = 5
+    if len(classPredVals) <5:
+        numOfPrediction = len(classPredVals)
+    predictions = Nmaxelements(listOfClass,numOfPrediction)\
+    #ya = model.predict_proba(test)
     rsps = {}
-    rsp = {}
-    rsp["PSC"] = encodingDict[classV]
-    rsp["desc"] = classDescripDict[encodingDict[classV]]
-    rsp["status"] = "success"
-    rsps["predictions"] = [rsp]
+    rsps["predictions"] = []
+    for i in range(len(predictions)):
+        rsp = {}
+        rsp["PSC"] = str(encodingDict[predictions[i]])
+        rsp["desc"] = classDescripDict[encodingDict[predictions[i]]]
+        rsp["status"] = "success"
+        rsps["predictions"].append(rsp)
+    print(rsps)
     y = json.dumps(rsps)
     return y
 
 def accept(txt, dataset):
     classDescripDict = dataset['classDescripDict']
     cur = dataset['conn']
+    conn = dataset['db']
     jsonRequest = json.loads(txt)
     descrip =  "UNKNOWN"
     if  jsonRequest["PSC"]  in classDescripDict.keys():
         descrip = classDescripDict[jsonRequest["PSC"]]
-    cur.execute('INSERT INTO dataset (item_description, class , class_description , encoding_val, weight, used_in_model, timestamp )  VALUES (?,?,?,?,?,?,?)',
+
+    if jsonRequest["save"] == True:
+        cur.execute('INSERT INTO dataset (item_description, class , class_description , encoding_val, weight, used_in_model, timestamp )  VALUES (?,?,?,?,?,?,?)',
                     [jsonRequest["text"], jsonRequest["PSC"] , descrip, -999, 1.5, 0, datetime.datetime.now()])
+        conn.commit()
     rsp = {}
     rsp["status"] = "success"
     y = json.dumps(rsp)
@@ -426,9 +452,11 @@ class MyServer(BaseHTTPRequestHandler):
     def do_POST(self):
         global dataset
         global model
+        global serverStatus
         content_len = int(self.headers.get('Content-Length',0))
         post_body = self.rfile.read(content_len).decode('UTF-8')
         print(post_body)
+        resBody = ""
         resBody = '{"status":"error"}'
         if self.path == "/predict":
             resBody = predict(post_body,dataset,model)
@@ -442,8 +470,10 @@ class MyServer(BaseHTTPRequestHandler):
             model = loadModel()
             rsp ={}
             rsp["status"] = "success"
+            print(rsp)
             resBody = json.dumps(rsp)
             dataset["db"].commit()
+            serverStatus = "UP"
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
