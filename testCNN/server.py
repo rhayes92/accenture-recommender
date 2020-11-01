@@ -91,8 +91,8 @@ def loadDataSet():
     column["Item Description"] = []
     column["Class Description"] = []
     for row in rows:
-        column['Item Description'].append(row[1])
-        column['Class'].append(row[2])
+        column['Item Description'].append(str(row[1]))
+        column['Class'].append(str(row[2]))
         column['Class Description'].append(row[3])
         encodingDict[row[4]] = row[2]
         classDespDict[row[2]] = row[3]
@@ -398,7 +398,6 @@ def predict(txt, dataset, model):
     maxlen = parameters["cnnParameters"]["maxlen"]
     test = tokenizer.texts_to_sequences(test_sent)
     test = pad_sequences(test, padding='post', maxlen=maxlen)
-    ynew = model.predict_classes(test)
     classPredVals = model.predict(test)
     classPredVals = classPredVals[0]
     listOfClass = []
@@ -444,7 +443,7 @@ def accept(txt, dataset):
 parameters = loadParameters('parameters.json')
 import time
 
-hostName = "localhost"
+hostName = "0.0.0.0"
 serverPort = 8080
 model = None
 dataset = None
