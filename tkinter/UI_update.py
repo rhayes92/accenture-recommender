@@ -5,9 +5,7 @@ from tkinter import *
 from tkinter import ttk
 import tkinter.filedialog
 import pandas as pd
-### NLP Packages
 import preprocessing1 as pp
-# import cnn as c
 
 ### Structure and Layout ###
 window = Tk()
@@ -61,24 +59,6 @@ def accept_psc():
     acceptpsc=accept(raw_text,updated_psc)
     result_display.insert(tk.END,acceptpsc)
 
-    # ttl = str(TitleName.get())
-    # des = str(DesName.get())
-    # DF=pd.DataFrame(columns=['Item Title','Item Description'])
-    # DF.loc[0,'Item Title']=ttl
-    # DF.loc[0,'Item Description']=des
-    # DF['Item Title']=DF['Item Title'].apply(lambda x : pp.clean_text(x))
-    # DF['Item Description']=DF['Item Description'].apply(lambda x : pp.clean_text(x))
-    # DF['Item Title']=DF['Item Title'].apply(lambda x : pp.return_sentences(x))
-    # DF['Item Description']=DF['Item Description'].apply(lambda x : pp.return_sentences(x))
-    # DF['clean_title_desc'] =DF['Item Title']+" "+DF['Item Description']
-    # DF['clean_title_desc'] =DF['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
-    # DB=DF
-    # psc_input=DB['clean_title_desc'][0]
-    # psc_prediction=predict(psc_input)
-    # psc_display.insert(tk.END,psc_prediction)
-
-# import pandas as pd
-# DF=pd.DataFrame()
 # Get preprocessed text
 def action1():
     #global DB
@@ -94,9 +74,23 @@ def action1():
     DF['clean_title_desc'] =DF['Item Title']+" "+DF['Item Description']
     DF['clean_title_desc'] =DF['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
     DB=DF
+    return DB['clean_title_desc'][0]
     #text_display.insert(tk.END,DB['clean_title_desc'][0])
 
+def retrain(txt, psc):
+    myjson = {'text': txt, "PSC":psc}
+    urlReq = url + 'retrain'
+    x = requests.post(urlReq, json = myjson)
+    jsonRsp = json.loads( x.text)
+    print( jsonRsp["status"])
+    return jsonRsp
 
+def retrain_psc():
+    raw_text = str(TitleName.get()+" "+DesName.get())
+    updated_psc=str(pscName.get())
+    retrainpsc=retrain(raw_text,updated_psc)
+    retrain_display.insert(tk.END,retrainpsc)
+    
 # Clear Entry & Display
 def clear_text1():
     TitleEn.delete(0,END)
@@ -289,24 +283,6 @@ def accept_psc():
     acceptpsc=accept(raw_text,updated_psc)
     result_display.insert(tk.END,acceptpsc)
 
-    # ttl = str(TitleName.get())
-    # des = str(DesName.get())
-    # DF=pd.DataFrame(columns=['Item Title','Item Description'])
-    # DF.loc[0,'Item Title']=ttl
-    # DF.loc[0,'Item Description']=des
-    # DF['Item Title']=DF['Item Title'].apply(lambda x : pp.clean_text(x))
-    # DF['Item Description']=DF['Item Description'].apply(lambda x : pp.clean_text(x))
-    # DF['Item Title']=DF['Item Title'].apply(lambda x : pp.return_sentences(x))
-    # DF['Item Description']=DF['Item Description'].apply(lambda x : pp.return_sentences(x))
-    # DF['clean_title_desc'] =DF['Item Title']+" "+DF['Item Description']
-    # DF['clean_title_desc'] =DF['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
-    # DB=DF
-    # psc_input=DB['clean_title_desc'][0]
-    # psc_prediction=predict(psc_input)
-    # psc_display.insert(tk.END,psc_prediction)
-
-# import pandas as pd
-# DF=pd.DataFrame()
 # Get preprocessed text
 def action1():
     #global DB
@@ -322,9 +298,24 @@ def action1():
     DF['clean_title_desc'] =DF['Item Title']+" "+DF['Item Description']
     DF['clean_title_desc'] =DF['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
     DB=DF
+    return DB['clean_title_desc'][0]
     #text_display.insert(tk.END,DB['clean_title_desc'][0])
 
+def retrain(txt, psc):
+    myjson = {'text': txt, "PSC":psc}
+    urlReq = url + 'retrain'
+    x = requests.post(urlReq, json = myjson)
+    jsonRsp = json.loads( x.text)
+    print( jsonRsp["status"])
+    return jsonRsp
 
+def retrain_psc():
+    raw_text = str(TitleName.get()+" "+DesName.get())
+    updated_psc=str(pscName.get())
+    retrainpsc=retrain(raw_text,updated_psc)
+    retrain_display.insert(tk.END,retrainpsc)
+    
+    
 # Clear Entry & Display
 def clear_text1():
     TitleEn.delete(0,END)
