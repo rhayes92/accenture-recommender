@@ -34,7 +34,7 @@ Creating ReadMe's for your Github repository can be tedious.  I hope this templa
 
 #### Installation
 
-
+pip install -r requirements.txt
 
 #### API Reference
 
@@ -87,4 +87,5 @@ George Mason University
 DAEN 690 Project
 
 Fall 2020 
+
 [Back To The Top](#read-me-template)
