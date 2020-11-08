@@ -1,4 +1,5 @@
-################### VERSION 1 - Without Dropdown PSC List ########################## 
+
+################### VERSION 2 - With Dropdown PSC List ########################## 
 
 # Core Packages
 import tkinter as tk
@@ -64,13 +65,13 @@ def predict(txt):
     # print(jsonRsp["predictions"][0]["PSC"],    jsonRsp["predictions"][0]["desc"],    jsonRsp["predictions"][0]["status"])
     return jsonRsp
 
-# Predict using raw text
+# # Predict using raw text
 # def predict_psc():
 #     raw_text = str(TitleName.get()+" "+DesName.get())
 #     prediction=predict(raw_text)
 #     psc_display.insert(tk.END,prediction)
 
-
+prediction=[]
 # Predict using preprocessed text
 def predictaction1():
     ttl = str(TitleName.get())
@@ -86,9 +87,22 @@ def predictaction1():
     DF['clean_title_desc'] =DF['clean_title_desc'].replace(r'\b\w{1,3}\b', "", regex=True)
     DB=DF
     cleantext=DB['clean_title_desc'][0]
+    global prediction
     prediction=predict(cleantext)
-    # print(prediction)
-    psc_display.insert(tk.END,prediction['predictions'][0]['PSC']) #top recommendation
+    psc_display.insert(tk.END,prediction)
+    psc1_display.insert(tk.END,prediction['predictions'][0]['PSC'])
+
+def updateMenu(pscMenu,psc_option):
+    global prediction
+    # psclist=[prediction['predictions'][0]['PSC'],prediction['predictions'][1]['PSC'],prediction['predictions'][2]['PSC'],prediction['predictions'][3]['PSC'],prediction['predictions'][4]['PSC']]
+    psclist=[prediction['predictions'][1]['PSC'],prediction['predictions'][2]['PSC'],prediction['predictions'][3]['PSC'],prediction['predictions'][4]['PSC']]
+    pscMenu.configure(state='normal')
+    menu=pscMenu['menu']
+    menu.delete(0, 'end')
+    for name in psclist:
+        # Add menu items.
+        menu.add_command(label=name, command=lambda name=name: psc_option.set(name))
+    psc_option.set('Select...')
 
 
 def accept(txt, psc):
@@ -107,19 +121,12 @@ def accept(txt, psc):
     print( jsonRsp["status"])
     return jsonRsp
 
-# def accept(txt, psc):
-#     #save set to True will save
-#     myjson = {'text': txt, "PSC":psc, 'save':True}
-#     urlReq = url + 'accept'
-#     x = requests.post(urlReq, json = myjson)
-#     jsonRsp = json.loads( x.text)
-#     print( jsonRsp["status"])
-#     return jsonRsp
-
 def accept_psc():
     raw_text = str(TitleName.get()+" "+DesName.get())
-    updated_psc=str(pscName.get())
-    # updated_psc=str(psc_display.get(1.0,END))
+    if pscName.get(): #If suggested psc is entered, use pscName
+        updated_psc=pscName.get()
+    else:
+        updated_psc=psc_option.get() #No suggested psc is entered; use top5 recommendation
     acceptpsc=accept(raw_text,updated_psc)
     result_display.insert(tk.END,acceptpsc)
 
@@ -132,6 +139,7 @@ def retrain():
     return jsonRsp
 
 #TRACKER
+
 count=0 
 def clickOK():
     global count
@@ -154,18 +162,26 @@ data=[]
 def savelog():
     val1 = TitleEn.get()
     val2 = DesEn.get()
-    val3 = psc_display.get(1.0,tk.END+"-1c")
-    val4 = pscEn.get()
-    data.append([val1, val2, val3, val4])
+    val3 =[] 
+    a = psc1_display.get(1.0,tk.END+"-1c")
+    b = psc_option.get()
+    c = pscEn.get()
+    sel_string="Select..."
+    if c:
+        val3=c
+    elif sel_string not in b:
+        # user selected a psc
+        val3=b
+    else: 
+        val3=a
+    data.append([val1, val2, val3])
     # print(data)
 
 record=[]
 def export():
     global count,count1,count2
-    # global count1
-    # global count2
     record.append([count,count1,count2])
-    df1 = pd.DataFrame(data,columns = ["Order Title","Line Description","PSC Recommendation","Select Other PSC"])
+    df1 = pd.DataFrame(data,columns = ["Order Title","Line Description","PSC Recommendation"])
     df2 = pd.DataFrame(record,columns = ["Total PSC Generated","Correct","Not Correct"])
     # df1.to_csv('output.csv',index=False)
     with pd.ExcelWriter('output.xlsx') as writer:  
@@ -174,6 +190,7 @@ def export():
 
 
 # Clear Entry & Display
+
 def clear_text1():
     TitleEn.delete(0,END)
 
@@ -183,20 +200,29 @@ def clear_text2():
 def clear_result():
     # text_display.delete('1.0',END)
     psc_display.delete('1.0',END)
+    psc1_display.delete('1.0',END)
+
+def clear_menu(pscMenu,psc_option):
+    menu=pscMenu['menu']
+    menu.delete(0, 'end')
+    psc_option.set('')
 
 def clear_edited():
     pscEn.delete(0,END)
+
+def clear_status():
     result_display.delete('1.0',END)
+
 
 ### Tab1 ###
 
-# Entry and Display columns
 
 label1 = Label(tab1, text= 'Product Service Code Recommendation Engine',padx=5, pady=5,font="Arial 16 bold")
 label1.grid(row=1,column=0, padx=5, pady=5, columnspan = 4)
 
+
 S1Lb1 = Label(tab1, text="Order Title", fg="black", bg="white",font = ('Calibri',12))
-S1Lb1.grid(row=2, column=0, padx=5, pady=5, sticky=W+E)
+S1Lb1.grid(row=2, column=0, padx=5, pady=5, sticky=E)
 TitleName = StringVar()
 TitleEn = Entry(tab1, textvariable=TitleName, width=55)
 TitleEn.grid(row=2, column=1, ipady=4)
@@ -205,7 +231,7 @@ clear_input1.grid(row=2, column=2, padx=5, pady=5,sticky=W+E)
 
 
 S1Lb2 = Label(tab1, text="Line Description", fg="black", bg="white",font = ('Calibri',12))
-S1Lb2.grid(row=3, column=0, padx=5, pady=5,sticky=W+E)
+S1Lb2.grid(row=3, column=0, padx=5, pady=5,sticky=E)
 DesName = StringVar()
 DesEn = Entry(tab1, textvariable=DesName, width=55)
 DesEn.grid(row=3, column=1, ipady=4)
@@ -217,32 +243,47 @@ clear_input2.grid(row=3, column=2, padx=5, pady=5,sticky=W+E)
 #S1Lb3.grid(row=5, column=0, padx=5, pady=5,sticky=W+E)
 #text_display = Text(tab1,height=2, width=40)
 #text_display.grid(row=5, column=1,padx=10,sticky=W+E)
+#clean_but=tk.Button(tab1,text="Clean Text",command=action1, activebackground = 'white')
+#clean_but.grid(row=5, column=2, padx=5, pady=5,sticky=W+E)
 
 
-S1Lb4 = Label(tab1, text="PSC Recommendation", fg="black", bg="white",font = ('Calibri',12))
-S1Lb4.grid(row=6, column=0, padx=5,pady=5,sticky=W+E)
-psc_display = Text(tab1, height=4, width=40)
+
+psc_display = Text(tab1, height=8, width=40)
 psc_display.grid(row=6, column=1,padx=5,sticky=W+E)
-lookupbutton=tk.Button(tab1,text="Generate Recommendation",command=lambda:[clickOK(),predictaction1()], activebackground = 'white',font = ('Calibri',12)) 
-# lookupbutton=tk.Button(tab1,text="Generate Recommendation",command=lambda:[clickOK(),predictaction1()], activebackground = 'white',font = ('Calibri',12)) 
+lookupbutton=tk.Button(tab1,text="Generate Recommendation",command=lambda:[clickOK(),predictaction1(),updateMenu(pscMenu,psc_option)], activebackground = 'white',font = ('Calibri',12)) 
 lookupbutton.grid(row=6, column=2, padx=0, pady=0,sticky=W+E)
 
-
+S1Lb4 = Label(tab1, text="PSC Recommendation", fg="black", bg="white",font = ('Calibri',12))
+S1Lb4.grid(row=7, column=0, padx=5,pady=5,sticky=E)
+psc1_display = Text(tab1, height=2, width=20)
+psc1_display.grid(row=7, column=1,padx=5,sticky=W)
 correctbutton=tk.Button(tab1,text="Accept Recommendation",command=lambda:[click1(),savelog()], activebackground = 'white',font = ('Calibri',12))
-correctbutton.grid(row=7, column=1, padx=5,pady=5,sticky=W+E)
-clear_result=tk.Button(tab1,text="Clear Recommendation",command=clear_result, activebackground = 'white',font = ('Calibri',12))
-clear_result.grid(row=7, column=2, padx=5, pady=5,sticky=W+E)
+correctbutton.grid(row=7, column=1, padx=5,pady=5,sticky=E)
+clear_rec=tk.Button(tab1,text="Clear Recommendation",command=lambda:[clear_result(),clear_menu(pscMenu,psc_option)], activebackground = 'white',font = ('Calibri',12))
+clear_rec.grid(row=7, column=2, padx=5, pady=5,sticky=W+E)
 
 
 S1Lb5 = Label(tab1, text="Select Other Product Service Code", fg="black", bg="white",font = ('Calibri',12))
-S1Lb5.grid(row=9, column=0, padx=5, pady=5,sticky=W+E)
+S1Lb5.grid(row=9, column=0, padx=5, pady=5,sticky=E)
+## Dropdown Version 
+psc_option = StringVar()
+# Dictionary with options
+# psc_list = {'1','2','3','4','5'} # will have to enter actual PSC list here
+psc_option.set('Select...') # set the default option
+pscMenu=OptionMenu(tab1,psc_option,"Select from Other Recommendation")
+pscMenu.grid(row = 9, column =1, sticky=W+E)
+pscMenu.configure(bg = 'white')
+# psc_option.trace('w', change_dropdown) # link function to change dropdown
+# clear_edited_record=tk.Button(tab1,text="Reset PSC",command=clear_edited, activebackground = 'white', font = ('Calibri',12))
+# clear_edited_record.grid(row=9, column=2, padx=5, pady=5,sticky=W+E)
+## Input Version 
 pscName = StringVar()
-pscEn = Entry(tab1, textvariable=pscName, width=55)
-pscEn.grid(row=9, column=1, ipady=4)
+pscEn = Entry(tab1, textvariable=pscName, width=30)
+pscEn.grid(row=9, column=2, ipady=4)
 clear_edited_record=tk.Button(tab1,text="Clear PSC Input",command=clear_edited, activebackground = 'white',font = ('Calibri',12))
-clear_edited_record.grid(row=9, column=2, padx=5, pady=5,sticky=W+E)
+clear_edited_record.grid(row=10, column=2, padx=5, pady=5,sticky=W+E)
 
-
+# Save Control
 bool_value1 = IntVar()
 checkbut=Checkbutton(tab1,text='Save Permission',variable=bool_value1, font = ('Calibri',12))
 checkbut.grid(row=10, column=1, padx=5,pady=5,sticky=W)
@@ -251,20 +292,22 @@ acceptbutton.grid(row=10, column=1, padx=5,pady=5,sticky=E)
 
 
 S1Lb7 = Label(tab1, text="Edited PSC Status", fg="black", bg="white",font = ('Calibri',12))
-S1Lb7.grid(row=12, column=0, padx=5,pady=5,sticky=W+E)
+S1Lb7.grid(row=12, column=0, padx=5,pady=5,sticky=E)
 result_display = Text(tab1,height=2, width=40)
 result_display.grid(row=12, column=1,padx=10,sticky=W+E)
 
 
 S1Lb8 = Label(tab1, text="Retrained PSC Status", fg="black", bg="white",font = ('Calibri',12))
-S1Lb8.grid(row=15, column=0, padx=5,pady=5,sticky=W+E)
+S1Lb8.grid(row=15, column=0, padx=5,pady=5,sticky=E)
 retrain_display= Text(tab1,height=2, width=40)
-retrain_display.grid(row=15, column=1,padx=10,sticky=W)
+retrain_display.grid(row=15, column=1,padx=10,sticky=W+E)
 retrainbutton=tk.Button(tab1,text="Retrain",command=retrain, activebackground = 'white',font = ('Calibri',12))
 retrainbutton.grid(row=15, column=2, padx=5, pady=5,sticky=W+E)
 
 
+
 ### Tab3 ###
+
 
 label0 = Label(tab3, text= 'Number of product service code recommendations generated.',padx=5, pady=5)
 label0.grid(row=1, column=0)
@@ -284,8 +327,6 @@ S3Lb4.grid(row=7,column=1)
 
 exportlog=tk.Button(tab3, text="Export", command=export, activebackground = 'white', font = ('Calibri',10))
 exportlog.grid(row=8, column=0, padx=5, pady=5, sticky='wes')
-
-
 
 
 tab_control.pack(expand=1, fill='both')
