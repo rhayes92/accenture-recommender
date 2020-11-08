@@ -1,0 +1,20 @@
+{
+  "sampleFile": "purchase-order-data-2012-2015-.csv",
+  "xVals": ["Item Name","Item Description"],
+  "yVal": "Family",
+  "yDescription": "Family Title",
+  "totalNumberOfSamples": 30000,
+  "cutoutThreshold": 300,
+  "sampleParameters": {
+    "numWords": 10000,
+    "testSize": 0.25
+  },
+  "cnnParameters": {
+    "maxtrixEmbeddingFile": "glove.6B.50d.txt",
+    "maxlen": 100,
+    "kernalSize": 3,
+    "numberOfFeatures": 128,
+    "epochs": 1,
+    "batchSize": 10
+  }
+}

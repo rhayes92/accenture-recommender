@@ -398,7 +398,6 @@ def predict(txt, dataset, model):
     maxlen = parameters["cnnParameters"]["maxlen"]
     test = tokenizer.texts_to_sequences(test_sent)
     test = pad_sequences(test, padding='post', maxlen=maxlen)
-    ynew = model.predict_classes(test)
     classPredVals = model.predict(test)
     classPredVals = classPredVals[0]
     listOfClass = []
