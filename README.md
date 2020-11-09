@@ -1,6 +1,6 @@
 # Natural Language Processing and Recommendation Engine for Supply Chain Product Codes
 
-> This a GMU Accentured sponsored project natural language processing recommendation engine.
+> This a GMU Accenture sponsored project natural language processing recommendation engine.
 
 ---
 
