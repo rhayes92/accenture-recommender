@@ -1,5 +1,4 @@
-
-################### VERSION 2 - With Dropdown PSC List ########################## 
+################### User Interface ########################## 
 
 # Core Packages
 import tkinter as tk
@@ -9,8 +8,8 @@ import tkinter.filedialog
 import pandas as pd
 from pandas import ExcelWriter
 from openpyxl.workbook import Workbook
-### NLP Packages
-import preprocessing1 as pp
+# NLP Packages
+import preprocessing as pp
 
 
 ### Structure and Layout ###
@@ -56,6 +55,7 @@ url = 'http://localhost:8080/'
 #     return DB['clean_title_desc'][0]
 #     # text_display.insert(tk.END,DB['clean_title_desc'][0])
 
+# API for predict
 def predict(txt):
     myjson = {'text':txt}
     urlReq = url + 'predict'
@@ -73,7 +73,7 @@ def predict(txt):
 
 prediction=[]
 # Predict using preprocessed text
-def predictaction1():
+def predictaction():
     ttl = str(TitleName.get())
     des = str(DesName.get())
     DF=pd.DataFrame(columns=['Item Title','Item Description'])
@@ -92,6 +92,7 @@ def predictaction1():
     psc_display.insert(tk.END,prediction)
     psc1_display.insert(tk.END,prediction['predictions'][0]['PSC'])
 
+# Insert the list of top recommendations to dropdown menu
 def updateMenu(pscMenu,psc_option):
     global prediction
     # psclist=[prediction['predictions'][0]['PSC'],prediction['predictions'][1]['PSC'],prediction['predictions'][2]['PSC'],prediction['predictions'][3]['PSC'],prediction['predictions'][4]['PSC']]
@@ -104,7 +105,7 @@ def updateMenu(pscMenu,psc_option):
         menu.add_command(label=name, command=lambda name=name: psc_option.set(name))
     psc_option.set('Select...')
 
-
+# API for accept psc
 def accept(txt, psc):
     # save set to True will save
     global bool_value1
@@ -121,6 +122,7 @@ def accept(txt, psc):
     print( jsonRsp["status"])
     return jsonRsp
 
+# Save the order name and description along with correct psc
 def accept_psc():
     raw_text = str(TitleName.get()+" "+DesName.get())
     if pscName.get(): #If suggested psc is entered, use pscName
@@ -130,6 +132,7 @@ def accept_psc():
     acceptpsc=accept(raw_text,updated_psc)
     result_display.insert(tk.END,acceptpsc)
 
+# API for retraining the model
 def retrain():
     myjson = {}
     urlReq = url + 'retrain'
@@ -138,14 +141,15 @@ def retrain():
     print( jsonRsp["status"])
     return jsonRsp
 
-#TRACKER
+##TRACKER
 
 count=0 
-def clickOK():
+def click0():
     global count
     count=count + 1
     label0.configure(text="Generated "+ str(count) + " recommendation(s).")
 
+#Count the number of times 
 count1=0
 def click1():
     global count1
@@ -250,7 +254,7 @@ clear_input2.grid(row=3, column=2, padx=5, pady=5,sticky=W+E)
 
 psc_display = Text(tab1, height=8, width=40)
 psc_display.grid(row=6, column=1,padx=5,sticky=W+E)
-lookupbutton=tk.Button(tab1,text="Generate Recommendation",command=lambda:[clickOK(),predictaction1(),updateMenu(pscMenu,psc_option)], activebackground = 'white',font = ('Calibri',12)) 
+lookupbutton=tk.Button(tab1,text="Generate Recommendation",command=lambda:[click0(),predictaction(),updateMenu(pscMenu,psc_option)], activebackground = 'white',font = ('Calibri',12)) 
 lookupbutton.grid(row=6, column=2, padx=0, pady=0,sticky=W+E)
 
 S1Lb4 = Label(tab1, text="PSC Recommendation", fg="black", bg="white",font = ('Calibri',12))
