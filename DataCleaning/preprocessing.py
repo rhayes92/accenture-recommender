@@ -6,13 +6,15 @@ import pandas as pd
 import numpy as np
 from sagemaker import get_execution_role 
 
+# Use this to retrieve data from an Amazon S3 bucket. If file is local, comment this section out. 
 role = get_execution_role() 
-
 bucket = 'INSERT_BUCKET_NAME_HERE' 
 data_key = 'INSERT_FILE_NAME_HERE.csv'
 data_location = 's3://{}/{}'.format(bucket, data_key) 
-
 df = pd.read_csv(data_location)
+
+# If not retrieving data from an S3 bucket, uncommend this section and load the file locally. 
+# df = pd.read_csv(r'Path where the CSV file is stored\File name.csv')
 
 # ### Data Preprocessing
 df.astype({"ORDER_TITLE":'str', 'LINE_DESCRIPTION': 'str'}) # changing data types so clean_text function works properly
@@ -90,5 +92,5 @@ df.to_csv('cleaned_data.csv')
 
 # uploading csv file to S3 bucket
 s3 = boto3.resource('s3')
-s3.meta.client.upload_file('FILE_NAME_HERE.csv', bucket, 'FILE_NAME_HERE.csv')
+s3.meta.client.upload_file('FILE_NAME_HERE.csv', bucket, 'FILE_NAME_HERE.csv') # change these to match your file name
 
