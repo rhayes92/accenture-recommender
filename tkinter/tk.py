@@ -6,6 +6,7 @@ from tkinter import *
 from tkinter import ttk
 import tkinter.filedialog
 import pandas as pd
+import pandas.io.json._normalize
 from pandas import ExcelWriter
 from openpyxl.workbook import Workbook
 # NLP Packages
@@ -15,7 +16,7 @@ import preprocessing as pp
 ### Structure and Layout ###
 window = Tk()
 window.title("NLP PSC")
-window.geometry("1100x700")
+window.geometry("1200x800")
 window.configure(bg='dark grey')
 
 # TAB LAYOUT
@@ -61,7 +62,7 @@ def predict(txt):
     urlReq = url + 'predict'
     x = requests.post(urlReq, json = myjson)
     jsonRsp = json.loads(x.text)
-    print(jsonRsp)
+    # print(jsonRsp)
     # print(jsonRsp["predictions"][0]["PSC"],    jsonRsp["predictions"][0]["desc"],    jsonRsp["predictions"][0]["status"])
     return jsonRsp
 
@@ -72,6 +73,7 @@ def predict(txt):
 #     psc_display.insert(tk.END,prediction)
 
 prediction=[]
+# jsonPrd=[]
 # Predict using preprocessed text
 def predictaction():
     ttl = str(TitleName.get())
@@ -89,7 +91,20 @@ def predictaction():
     cleantext=DB['clean_title_desc'][0]
     global prediction
     prediction=predict(cleantext)
-    psc_display.insert(tk.END,prediction)
+    # global jsonPrd
+    jsonPrd=pd.json_normalize(prediction, 'predictions')
+    df_rows=jsonPrd.to_numpy().tolist()
+    tv["column"]=list(jsonPrd.columns)
+    tv["show"]="headings"
+    for column in tv["column"]:
+        tv.heading(column,text=column)
+    for row in df_rows:
+        tv.insert("","end",values=row)
+    # print(jsonprd)
+    # psclist=[prediction['predictions'][0],"\n",prediction['predictions'][1],"\n",prediction['predictions'][2],"\n",prediction['predictions'][3],"\n",prediction['predictions'][4]]
+
+    # psc_display.insert(tk.END,jsonPrd.iloc[:,0:2])
+    # psc_display.insert(INSERT,prediction['predictions'][0],"\n",prediction['predictions'][1],"\n",prediction['predictions'][2])
     psc1_display.insert(tk.END,prediction['predictions'][0]['PSC'])
 
 # Insert the list of top recommendations to dropdown menu
@@ -140,6 +155,11 @@ def retrain():
     jsonRsp = json.loads( x.text)
     print( jsonRsp["status"])
     return jsonRsp
+
+def retrain_psc():
+    global bool_value2
+    if bool_value2.get()==1:
+        retrain()
 
 ##TRACKER
 
@@ -203,7 +223,8 @@ def clear_text2():
     
 def clear_result():
     # text_display.delete('1.0',END)
-    psc_display.delete('1.0',END)
+    # psc_display.delete('1.0',END)
+    tv.delete(*tv.get_children())
     psc1_display.delete('1.0',END)
 
 def clear_menu(pscMenu,psc_option):
@@ -228,7 +249,7 @@ label1.grid(row=1,column=0, padx=5, pady=5, columnspan = 4)
 S1Lb1 = Label(tab1, text="Order Title", fg="black", bg="white",font = ('Calibri',12))
 S1Lb1.grid(row=2, column=0, padx=5, pady=5, sticky=E)
 TitleName = StringVar()
-TitleEn = Entry(tab1, textvariable=TitleName, width=55)
+TitleEn = Entry(tab1, textvariable=TitleName, width=60)
 TitleEn.grid(row=2, column=1, ipady=4)
 clear_input1=tk.Button(tab1,text="Clear Input",command=clear_text1, activebackground = 'white',font = ('Calibri',12))
 clear_input1.grid(row=2, column=2, padx=5, pady=5,sticky=W+E)
@@ -237,7 +258,7 @@ clear_input1.grid(row=2, column=2, padx=5, pady=5,sticky=W+E)
 S1Lb2 = Label(tab1, text="Line Description", fg="black", bg="white",font = ('Calibri',12))
 S1Lb2.grid(row=3, column=0, padx=5, pady=5,sticky=E)
 DesName = StringVar()
-DesEn = Entry(tab1, textvariable=DesName, width=55)
+DesEn = Entry(tab1, textvariable=DesName, width=60)
 DesEn.grid(row=3, column=1, ipady=4)
 clear_input2=tk.Button(tab1,text="Clear Input",command=clear_text2, activebackground = 'white',font = ('Calibri',12))
 clear_input2.grid(row=3, column=2, padx=5, pady=5,sticky=W+E)
@@ -250,12 +271,17 @@ clear_input2.grid(row=3, column=2, padx=5, pady=5,sticky=W+E)
 #clean_but=tk.Button(tab1,text="Clean Text",command=action1, activebackground = 'white')
 #clean_but.grid(row=5, column=2, padx=5, pady=5,sticky=W+E)
 
+S1Lb3 = Label(tab1, text="PSC Status", fg="black", bg="white",font = ('Calibri',12))
+S1Lb3.grid(row=5, column=0, padx=5, pady=5,sticky=E)
+cols = ('PSC', 'desc', 'status')
+tv = ttk.Treeview(tab1, columns=cols, show='headings')
+tv.grid(row=5, column=1)
 
 
-psc_display = Text(tab1, height=8, width=40)
-psc_display.grid(row=6, column=1,padx=5,sticky=W+E)
+# psc_display = Text(tab1, height=12, width=50)
+# psc_display.grid(row=6, column=1,padx=5,sticky=W+E)
 lookupbutton=tk.Button(tab1,text="Generate Recommendation",command=lambda:[click0(),predictaction(),updateMenu(pscMenu,psc_option)], activebackground = 'white',font = ('Calibri',12)) 
-lookupbutton.grid(row=6, column=2, padx=0, pady=0,sticky=W+E)
+lookupbutton.grid(row=5, column=2, padx=0, pady=0,sticky=W+E)
 
 S1Lb4 = Label(tab1, text="PSC Recommendation", fg="black", bg="white",font = ('Calibri',12))
 S1Lb4.grid(row=7, column=0, padx=5,pady=5,sticky=E)
@@ -300,13 +326,18 @@ S1Lb7.grid(row=12, column=0, padx=5,pady=5,sticky=E)
 result_display = Text(tab1,height=2, width=40)
 result_display.grid(row=12, column=1,padx=10,sticky=W+E)
 
+# Retrain Control
+bool_value2 = IntVar()
+retrainbut=Checkbutton(tab1,text='Retrain Permission',variable=bool_value2, font = ('Calibri',12))
+retrainbut.grid(row=15, column=1, padx=5,pady=5,sticky=W)
+retrainbutton=tk.Button(tab1,text="       Retrain       ",command=retrain_psc, activebackground = 'white',font = ('Calibri',12))
+retrainbutton.grid(row=15, column=1, padx=5, pady=5,sticky=E)
 
 S1Lb8 = Label(tab1, text="Retrained PSC Status", fg="black", bg="white",font = ('Calibri',12))
-S1Lb8.grid(row=15, column=0, padx=5,pady=5,sticky=E)
+S1Lb8.grid(row=16, column=0, padx=5,pady=5,sticky=E)
 retrain_display= Text(tab1,height=2, width=40)
-retrain_display.grid(row=15, column=1,padx=10,sticky=W+E)
-retrainbutton=tk.Button(tab1,text="Retrain",command=retrain, activebackground = 'white',font = ('Calibri',12))
-retrainbutton.grid(row=15, column=2, padx=5, pady=5,sticky=W+E)
+retrain_display.grid(row=16, column=1,padx=10,sticky=W+E)
+
 
 
 
@@ -335,7 +366,7 @@ exportlog.grid(row=8, column=0, padx=5, pady=5, sticky='wes')
 
 tab_control.pack(expand=1, fill='both')
 
-about_label = Label(window,text="NLP GUI V.1.0.1 Team Innovation Geeks",pady=5,padx=5)
+about_label = Label(window,text="NLP GUI V.2.0.1 Team Innovation Geeks",pady=5,padx=5)
 about_label.pack(fill='both')
 
 
