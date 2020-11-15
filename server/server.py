@@ -76,7 +76,7 @@ def Nmaxelements(list1, N):
         for j in range(len(list1)):
             if list1[j][1] > max1:
                 max1 = list1[j][1];
-                k = list1[j][0];
+                k = {"index":list1[j][0], "probability":list1[j][1] };
                 jval = j
         del list1[jval];
         final_list.append(k)
@@ -319,7 +319,7 @@ def createNewDataSet():
         encodingValue = -999
         if column['Class'][i] in encodingDictRev.keys():
             encodingValue =  encodingDictRev[column['Class'][i]]
-        usedInModel = 1
+        usedInModel = 0
         if i in trainingData:
             usedInModel= 1
         conn.execute('INSERT INTO dataset (item_description, class , class_description , encoding_val, weight, used_in_model,timestamp ) VALUES (?,?,?,?,?,?,?)',
@@ -422,6 +422,7 @@ def predict(txt, dataset, model):
     classPredVals = classPredVals[0]
     listOfClass = []
     for i in range(len(classPredVals)):
+        print(classPredVals[i])
         listOfClass.append([i,classPredVals[i]])
     numOfPrediction = 5
     if len(classPredVals) <5:
@@ -431,8 +432,9 @@ def predict(txt, dataset, model):
     rsps["predictions"] = []
     for i in range(len(predictions)):
         rsp = {}
-        rsp["PSC"] = str(encodingDict[predictions[i]])
-        rsp["desc"] = classDescripDict[encodingDict[predictions[i]]]
+        rsp["PSC"] = str(encodingDict[predictions[i]["index"]])
+        rsp["desc"] = classDescripDict[encodingDict[predictions[i]["index"]]]
+        rsp["probability"] = str(predictions[i]["probability"])
         rsp["status"] = "success"
         rsps["predictions"].append(rsp)
     print(rsps)
