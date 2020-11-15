@@ -508,11 +508,15 @@ def startServer():
     webServer = HTTPServer((hostName, serverPort), MyServer)
     #See if initial model has already been created
     if path.exists(dbPath) == False or path.exists(modelPath) == False:
-        dataset = createNewDataSet()
-        start_time = time.time()
-        trainCNN(dataset)
-        print("--- %s seconds ---" % (time.time() - start_time))
-        model = loadModel()
+        try:
+            dataset = createNewDataSet()
+            start_time = time.time()
+            trainCNN(dataset)
+            print("--- %s seconds ---" % (time.time() - start_time))
+            model = loadModel()
+        except Exception as err:
+            print(err)
+            exit(1)
     else:
         #load data
         dataset = loadDataSet()
