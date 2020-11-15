@@ -365,7 +365,7 @@ def trainCNN(dataset):
     model.add(layers.Dense(categorySize, activation='softmax'))
     model.compile(optimizer='adam',
                   loss='categorical_crossentropy',
-                  metrics=['accuracy'])
+                  metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()])
     model.summary()
     history = None
     #train initial model
@@ -399,12 +399,10 @@ def trainCNN(dataset):
     hist_csv_file = 'history.csv'
     with open(hist_csv_file, mode='w') as f:
         hist_df.to_csv(f)
-    loss, accuracy = model.evaluate(X_train, y_train, verbose=False)
-    print("Training Accuracy: {:.4f}".format(accuracy))
-    loss, accuracy = model.evaluate(X_test, y_test, verbose=False)
-    print("Testing Accuracy:  {:.4f}".format(accuracy))
+    metrics = model.evaluate(X_train, y_train, verbose=False)
+    print( "Loss:",metrics[0],"\nAccuracy:",metrics[1],"\nPrecision:",metrics[2],"\nRecall:",metrics[3])
     model.save(modelPath)
-    return {"model": model,"loss":loss, "accuracy": accuracy}
+    return {"model": model,"loss":metrics[0], "accuracy": metrics[1]}
 #load model on startup
 def loadModel():
     return keras.models.load_model(modelPath)
