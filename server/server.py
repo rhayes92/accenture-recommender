@@ -2,9 +2,11 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from keras.models import Sequential
 from keras import layers
+import tensorflow.keras.metrics as km
+import tensorflow.keras.models as tfModels
 import time
 import math
-import keras
+#import keras
 import json
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -112,6 +114,8 @@ def loadDataSet():
     y = df_yelp['label'].values
     for i in range(len(y)):
         y[i] = str(y[i])
+    for i in range(len(sentences)):
+        sentences[i] = str(sentences[i])
     #create encoder for predictions
     encoder = LabelEncoder()
     encoder.fit(y)
@@ -146,7 +150,7 @@ def retrain(dataset):
     totalNumber = 0
     #Find all the class counts
     for row in rows:
-        classCountSql = "SELECT count(class) FROM dataset WHERE class = %s" % row[0]
+        classCountSql = "SELECT count(class) FROM dataset WHERE class = '%s'" % row[0]
         conn.execute(classCountSql)
         classCount = conn.fetchone()
         if classCount[0] > parameters['cutoutThreshold']:
@@ -158,7 +162,7 @@ def retrain(dataset):
          classAmmount[key] = int(math.ceil((classAmmount[key]/totalNumber)*parameters["totalNumberOfSamples"]))
     #for class over threshold load
     for i in range(len(classes)):
-        selectSql = "SELECT index_key, item_description, class , class_description , weight FROM dataset WHERE class = %s ORDER by weight DESC, timestamp DESC LIMIT %d"  % (classes[i], classAmmount[classes[i]])
+        selectSql = "SELECT index_key, item_description, class , class_description , weight FROM dataset WHERE class = '%s' ORDER by weight DESC, timestamp DESC LIMIT %d"  % (classes[i], classAmmount[classes[i]])
         conn.execute(selectSql)
         rows = conn.fetchall()
         for row in rows:
@@ -209,7 +213,8 @@ def retrain(dataset):
     tokenizer.fit_on_texts(sentences_train)
     conn.execute("UPDATE dataset SET used_in_model = 0, encoding_val = -999")
     for i in range(len(column['Class'])):
-        sqlUpdate = "UPDATE dataset SET used_in_model = %d, encoding_val = %d WHERE index_key = %d" % (1,encodingDictRev[column['Class'][i]],column['index_key'][i])
+        print(column['Class'][i])
+        sqlUpdate = "UPDATE dataset SET used_in_model = %d, encoding_val = %d WHERE index_key = %d" % (1,encodingDictRev[str(column['Class'][i])],column['index_key'][i])
         conn.execute(sqlUpdate)
     return {"status": "newDataSet", "conn": conn, "tokenizer": tokenizer,
             "sentences_train": sentences_train, "sentences_test": sentences_test, "y_train": y_train,
@@ -365,7 +370,8 @@ def trainCNN(dataset):
     model.add(layers.Dense(categorySize, activation='softmax'))
     model.compile(optimizer='adam',
                   loss='categorical_crossentropy',
-                  metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()])
+                  metrics=['accuracy', km.Recall(), km.Precision()])
+                  #metrics=['accuracy'])
     model.summary()
     history = None
     #train initial model
@@ -400,12 +406,15 @@ def trainCNN(dataset):
     with open(hist_csv_file, mode='w') as f:
         hist_df.to_csv(f)
     metrics = model.evaluate(X_train, y_train, verbose=False)
-    print( "Loss:",metrics[0],"\nAccuracy:",metrics[1],"\nPrecision:",metrics[2],"\nRecall:",metrics[3])
+    #loss ,metrics = model.evaluate(X_train, y_train, verbose=False)
+    print( "Loss:",metrics[0],"\nAccuracy:",metrics[1],"\nPrecision:",metrics[3],"\nRecall:",metrics[2])
     model.save(modelPath)
     return {"model": model,"loss":metrics[0], "accuracy": metrics[1]}
+    #return {"model": model,"loss":metrics, "accuracy": metrics}
 #load model on startup
 def loadModel():
-    return keras.models.load_model(modelPath)
+    return tfModels.load_model(modelPath)
+    #return keras.models.load_model(modelPath)
 #function to predrict list of PSC codes
 def predict(txt, dataset, model):
     tokenizer = dataset['tokenizer']
@@ -461,7 +470,7 @@ def accept(txt, dataset):
 #Load json parameters
 parameters = loadParameters('parameters.json')
 import time
-hostName = "localhost"
+hostName = "0.0.0.0"
 serverPort = 8080
 model = None
 dataset = None
@@ -506,21 +515,22 @@ def startServer():
     webServer = HTTPServer((hostName, serverPort), MyServer)
     #See if initial model has already been created
     if path.exists(dbPath) == False or path.exists(modelPath) == False:
-        try:
+    #    try:
             dataset = createNewDataSet()
             start_time = time.time()
             trainCNN(dataset)
             print("--- %s seconds ---" % (time.time() - start_time))
             model = loadModel()
-        except Exception as err:
-            print(err)
-            exit(1)
+    #    except Exception as err:
+    #        print(err)
+    #        exit(1)
     else:
         #load data
         dataset = loadDataSet()
         model = loadModel()
 
     try:
+        print("starting server")
         webServer.serve_forever()
     except KeyboardInterrupt:
         pass
